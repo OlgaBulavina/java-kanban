@@ -9,29 +9,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class ObjectManager {
+public class TaskManager {
     private static Integer uin = 0;
-    public static HashMap<Integer, Task> taskStorage = new HashMap<>();
-    public static HashMap<Integer, Epic> epicStorage = new HashMap<>();
+    private HashMap<Integer, Task> taskStorage = new HashMap<>();
+    private  HashMap<Integer, Epic> epicStorage = new HashMap<>();
 
-    public static HashMap<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
+    private HashMap<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
 
-    public static int getUin(Task task) {
+    public int getUin(Task task) {
         return task.getUin();
     }
 
-    public static int setUin(Task task) {
+    public int setUin(Task task) {
         uin++;
         return task.setUin(uin);
     }
 
-    public static void createTask(Task task) {
+    public void createTask(Task task) {
         setUin(task);
         task.setStatus(Status.NEW);
         taskStorage.put(getUin(task), task);
     }
 
-    public static void createEpic(Epic epic) {
+    public void createEpic(Epic epic) {
         setUin(epic);
         epic.setStatus(Status.NEW);
         epicStorage.put(getUin(epic), epic);
@@ -39,7 +39,7 @@ public class ObjectManager {
         subtaskStorage.put(getUin(epic), subtaskList);
     }
 
-    public static void createSubtask(int epicUin, Subtask subtask) {
+    public void createSubtask(int epicUin, Subtask subtask) {
         setUin(subtask);
         subtask.setEpicUin(epicUin);
         subtask.setStatus(Status.NEW);
@@ -47,12 +47,24 @@ public class ObjectManager {
         currentSubtaskList.put(getUin(subtask), subtask);
     }
 
-    public static Task getTask(int uin) {
+    public Task getTask(int uin) {
         return taskStorage.get(uin);
     }
 
-    public static Epic getEpic(int uin) {
+    public Epic getEpic(int uin) {
         return epicStorage.get(uin);
+    }
+
+    public HashMap<Integer, Task> getTaskStorage() {
+        return taskStorage;
+    }
+
+    public HashMap<Integer, Epic> getEpicStorage() {
+        return epicStorage;
+    }
+
+    public HashMap<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
+        return subtaskStorage;
     }
 
     public Subtask getSubtask(int uin) {
@@ -68,20 +80,20 @@ public class ObjectManager {
     }
 
 
-    public static void updateTask(int uin, Task newTask) {
+    public void updateTask(int uin, Task newTask) {
         taskStorage.remove(uin);
         newTask.setUin(uin);
         taskStorage.put(uin, newTask);
     }
 
-    public static void updateEpic(int uin, Epic newEpic) {
+    public void updateEpic(int uin, Epic newEpic) {
         newEpic.setUin(getUin(getEpic(uin)));
         epicStorage.remove(uin);
         epicStorage.put(uin, newEpic);
         countEpicStatus(uin);
     }
 
-    public static void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
+    public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
         newSubtask.setStatus(status);
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
             for (Integer key : value.keySet()) {
@@ -97,11 +109,11 @@ public class ObjectManager {
         countEpicStatus(newSubtask.getThisEpicUin());
     }
 
-    public static void deleteTask(int uin) {
+    public void deleteTask(int uin) {
         taskStorage.remove(uin);
     }
 
-    public static void deleteEpic(int uin) {
+    public void deleteEpic(int uin) {
         epicStorage.remove(uin);
         subtaskStorage.remove(uin);
     }
@@ -119,19 +131,19 @@ public class ObjectManager {
         countEpicStatus(epicUin);
     }
 
-    public static void showAllTasks() {
+    public void showAllTasks() {
         for (Integer i : taskStorage.keySet()) {
             System.out.println(taskStorage.get(i));
         }
     }
 
-    public static void showAllEpics() {
+    public void showAllEpics() {
         for (Integer i : epicStorage.keySet()) {
             System.out.println(epicStorage.get(i));
         }
     }
 
-    public static ArrayList<Subtask> showEpicSubtasks(int epicUin) {
+    public ArrayList<Subtask> showEpicSubtasks(int epicUin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
         ArrayList<Subtask> subtasksListToPrint = new ArrayList<>();
         for (Subtask subtask : currentSubtaskList.values()) {
@@ -140,27 +152,26 @@ public class ObjectManager {
         return subtasksListToPrint;
     }
 
-    public static void deleteAllTasks() {
+    public void deleteAllTasks() {
         taskStorage.clear();
     }
 
-    public static void deleteAllEpics() {
+    public void deleteAllEpics() {
         epicStorage.clear();
     }
 
-    public static void deleteAllSubtasksForOneEpic(int uin) {
+    public void deleteAllSubtasksForOneEpic(int uin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
         currentSubtaskList.clear();
     }
 
-    public static void deleteAllSubtasksForAllEpics() {
+    public void deleteAllSubtasksForAllEpics() {
         subtaskStorage.clear();
     }
 
-    private static void countEpicStatus(int uin) {
+    private void countEpicStatus(int uin) {
         Epic epicToCheck = epicStorage.get(uin);
         int newStatus = 0;
-        int inProgressStatus = 0;
         int doneStatus = 0;
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
         for (Subtask currentSubtask : currentSubtaskList.values()) {
@@ -169,16 +180,15 @@ public class ObjectManager {
                     newStatus++;
                     break;
                 case IN_PROGRESS:
-                    inProgressStatus++;
                     break;
                 case DONE:
                     doneStatus++;
                     break;
             }
         }
-        if ((newStatus != 0 && inProgressStatus == 0 && doneStatus == 0)) {
+        if ((newStatus == currentSubtaskList.size())) {
             epicToCheck.setStatus(Status.NEW);
-        } else if ((newStatus == 0 && inProgressStatus == 0 && doneStatus != 0)) {
+        } else if ((doneStatus == currentSubtaskList.size())) {
             epicToCheck.setStatus(Status.DONE);
         } else {
             epicToCheck.setStatus(Status.IN_PROGRESS);
