@@ -1,3 +1,4 @@
+
 package service;
 
 import model.Epic;
@@ -7,15 +8,23 @@ import model.Task;
 
 public class Main {
 
-
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+
+        TaskManager  taskManager = new InMemoryTaskManager();
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        
         Task taskOne = new Task("taskOne name", "taskOne description");
         taskManager.createTask(taskOne);
         System.out.println(taskOne);
         System.out.println("uin taskOne = " + taskManager.getUin(taskOne));
         System.out.println("хэшмэп с тасками: " + taskManager.getTaskStorage());
         System.out.println("хэшмэп с эпиками (пока нет ни одного эпика): " + taskManager.getEpicStorage());
+        System.out.println("----");
+
+        System.out.println();
+        System.out.println("----");
+        System.out.println("проверка метода getDefaultHistory");
+        System.out.println(Managers.getDefaultHistory());
         System.out.println("----");
 
 
@@ -92,7 +101,7 @@ public class Main {
         Subtask subtaskThreeEpicTwo = new Subtask("subtaskThreeEpicTwo",
                 "subtaskThreeEpicTwo description");
         taskManager.createSubtask(taskManager.getUin(epicTwo), subtaskThreeEpicTwo);
-        subtaskOneEpicTwo.setStatus(Status.NEW);
+        subtaskOneEpicTwo.setStatus(Status.IN_PROGRESS);
         subtaskTwoEpicTwo.setStatus(Status.NEW);
         subtaskThreeEpicTwo.setStatus(Status.IN_PROGRESS);
         taskManager.updateEpic(taskManager.getUin(epicTwo), epicTwo);
@@ -131,6 +140,16 @@ public class Main {
         taskManager.deleteSubtask(taskManager.getUin(subtaskOneEpicTwo));
         System.out.println(taskManager.getEpic(taskManager.getUin(epicTwo)));
 
+        System.out.println();
+        System.out.println("----");
+        System.out.println("проверка метода getHistory");
+        System.out.println(historyManager.getHistory());
+        System.out.println("----");
+
+        System.out.println();
+        System.out.println("ПРОВЕРКА МЕТОДОМ printAllTasks");
+        printAllTasks(taskManager);
+
         System.out.println("----");
         System.out.println("тест удаления объектов:");
         System.out.println("вывод коллекции всех тасков:");
@@ -157,7 +176,35 @@ public class Main {
         System.out.println("вывод всех сабтасков после очистки коллекции: ");
         System.out.println(taskManager.getSubtaskStorage().toString());
 
+        System.out.println();
+        System.out.println("----");
+        System.out.println("проверка метода getHistory");
+        System.out.println(historyManager.getHistory());
+        System.out.println("----");
 
+        System.out.println();
+        System.out.println("ПРОВЕРКА МЕТОДОМ printAllTasks");
+        printAllTasks(taskManager);
 
     }
-}
+
+
+    private static void printAllTasks(TaskManager manager) {
+        System.out.println("Задачи:");
+        manager.showAllTasks();
+
+        System.out.println("Эпики:");
+        manager.showAllEpics();
+
+        System.out.println("Подзадачи по УИН номерам эпиков:");
+            for (Epic epic : manager.getEpicStorage().values()) {
+                System.out.println("1. Эпик '" + epic.getName() + "' с УИН " + epic.getUin() + ".\nЕго подзадачи:");
+                System.out.println(manager.showEpicSubtasks(epic.getUin()));
+            }
+
+        System.out.println("История:");
+        Managers.getDefaultHistory();
+        }
+    }
+
+

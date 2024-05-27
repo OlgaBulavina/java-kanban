@@ -1,18 +1,18 @@
 package service;
 
 import model.Epic;
+import model.Status;
 import model.Subtask;
 import model.Task;
-import model.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+public class InMemoryTaskManager implements TaskManager {
 
-public class TaskManager {
     private static Integer uin = 0;
     private HashMap<Integer, Task> taskStorage = new HashMap<>();
-    private  HashMap<Integer, Epic> epicStorage = new HashMap<>();
+    private HashMap<Integer, Epic> epicStorage = new HashMap<>();
 
     private HashMap<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
 
@@ -25,12 +25,14 @@ public class TaskManager {
         return task.setUin(uin);
     }
 
+    @Override
     public void createTask(Task task) {
         setUin(task);
         task.setStatus(Status.NEW);
         taskStorage.put(getUin(task), task);
     }
 
+    @Override
     public void createEpic(Epic epic) {
         setUin(epic);
         epic.setStatus(Status.NEW);
@@ -39,6 +41,7 @@ public class TaskManager {
         subtaskStorage.put(getUin(epic), subtaskList);
     }
 
+    @Override
     public void createSubtask(int epicUin, Subtask subtask) {
         setUin(subtask);
         subtask.setEpicUin(epicUin);
@@ -47,26 +50,21 @@ public class TaskManager {
         currentSubtaskList.put(getUin(subtask), subtask);
     }
 
+    @Override
     public Task getTask(int uin) {
-        return taskStorage.get(uin);
+        Task currentTask = taskStorage.get(uin);
+        InMemoryHistoryManager.updateListOfRecalledTasks(currentTask);
+        return currentTask;
     }
 
+    @Override
     public Epic getEpic(int uin) {
-        return epicStorage.get(uin);
+        Epic currentEpic = epicStorage.get(uin);
+        InMemoryHistoryManager.updateListOfRecalledTasks(currentEpic);
+        return currentEpic;
     }
 
-    public HashMap<Integer, Task> getTaskStorage() {
-        return taskStorage;
-    }
-
-    public HashMap<Integer, Epic> getEpicStorage() {
-        return epicStorage;
-    }
-
-    public HashMap<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
-        return subtaskStorage;
-    }
-
+    @Override
     public Subtask getSubtask(int uin) {
         Subtask currentSubtask = null;
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
@@ -76,16 +74,18 @@ public class TaskManager {
                 }
             }
         }
+        InMemoryHistoryManager.updateListOfRecalledTasks(currentSubtask);
         return currentSubtask;
     }
 
-
+    @Override
     public void updateTask(int uin, Task newTask) {
         taskStorage.remove(uin);
         newTask.setUin(uin);
         taskStorage.put(uin, newTask);
     }
 
+    @Override
     public void updateEpic(int uin, Epic newEpic) {
         newEpic.setUin(getUin(getEpic(uin)));
         epicStorage.remove(uin);
@@ -93,6 +93,7 @@ public class TaskManager {
         countEpicStatus(uin);
     }
 
+    @Override
     public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
         newSubtask.setStatus(status);
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
@@ -109,15 +110,18 @@ public class TaskManager {
         countEpicStatus(newSubtask.getThisEpicUin());
     }
 
+    @Override
     public void deleteTask(int uin) {
         taskStorage.remove(uin);
     }
 
+    @Override
     public void deleteEpic(int uin) {
         epicStorage.remove(uin);
         subtaskStorage.remove(uin);
     }
 
+    @Override
     public void deleteSubtask(int subtaskUin) {
         int epicUin = getSubtask(subtaskUin).getThisEpicUin();
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
@@ -131,18 +135,25 @@ public class TaskManager {
         countEpicStatus(epicUin);
     }
 
-    public void showAllTasks() {
+    @Override
+    public ArrayList<Task> showAllTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
         for (Integer i : taskStorage.keySet()) {
-            System.out.println(taskStorage.get(i));
+            tasks.add(taskStorage.get(i));
         }
+        return tasks;
     }
 
-    public void showAllEpics() {
+    @Override
+    public ArrayList<Epic> showAllEpics() {
+        ArrayList<Epic> epics = new ArrayList<>();
         for (Integer i : epicStorage.keySet()) {
-            System.out.println(epicStorage.get(i));
+            epics.add(epicStorage.get(i));
         }
+        return epics;
     }
 
+    @Override
     public ArrayList<Subtask> showEpicSubtasks(int epicUin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
         ArrayList<Subtask> subtasksListToPrint = new ArrayList<>();
@@ -152,19 +163,33 @@ public class TaskManager {
         return subtasksListToPrint;
     }
 
+    @Override
+    public ArrayList<Subtask> showAllSubtasks() {
+        ArrayList<Subtask> subtasks = new ArrayList<>();
+        for (Integer key : epicStorage.keySet()) {
+            ArrayList subtasksByEpicUin = showEpicSubtasks(key);
+            subtasks.addAll(subtasksByEpicUin);
+        }
+        return subtasks;
+    }
+
+    @Override
     public void deleteAllTasks() {
         taskStorage.clear();
     }
 
+    @Override
     public void deleteAllEpics() {
         epicStorage.clear();
     }
 
+    @Override
     public void deleteAllSubtasksForOneEpic(int uin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
         currentSubtaskList.clear();
     }
 
+    @Override
     public void deleteAllSubtasksForAllEpics() {
         subtaskStorage.clear();
     }
@@ -193,5 +218,20 @@ public class TaskManager {
         } else {
             epicToCheck.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public HashMap<Integer, Task> getTaskStorage() {
+        return taskStorage;
+    }
+
+    @Override
+    public HashMap<Integer, Epic> getEpicStorage() {
+        return epicStorage;
+    }
+
+    @Override
+    public HashMap<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
+        return subtaskStorage;
     }
 }
