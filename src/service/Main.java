@@ -10,8 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager  taskManager = new InMemoryTaskManager();
-        HistoryManager historyManager = Managers.getDefaultHistory();
+        TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         
         Task taskOne = new Task("taskOne name", "taskOne description");
         taskManager.createTask(taskOne);
@@ -143,7 +142,7 @@ public class Main {
         System.out.println();
         System.out.println("----");
         System.out.println("проверка метода getHistory");
-        System.out.println(historyManager.getHistory());
+        System.out.println(taskManager.getInMemoryHistoryManager().getHistory());
         System.out.println("----");
 
         System.out.println();
@@ -179,7 +178,7 @@ public class Main {
         System.out.println();
         System.out.println("----");
         System.out.println("проверка метода getHistory");
-        System.out.println(historyManager.getHistory());
+        System.out.println(taskManager.getInMemoryHistoryManager().getHistory());
         System.out.println("----");
 
         System.out.println();

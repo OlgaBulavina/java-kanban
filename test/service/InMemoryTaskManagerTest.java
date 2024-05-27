@@ -4,6 +4,7 @@ import model.Epic;
 import model.Status;
 import model.Subtask;
 import model.Task;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,7 +28,10 @@ class InMemoryTaskManagerTest {
     Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
     Subtask subtaskThree = new Subtask("Test addNewSubtaskThree", "Test addNewSubtaskThree description");
 
-
+    @AfterEach
+    void clearTasksHistory(){
+        historyManager.getHistory().clear();
+    }
     @Test
     void checkAddingOfDifferentTypeTasks() {
         taskManager.createTask(taskOne);
@@ -63,8 +67,6 @@ class InMemoryTaskManagerTest {
         assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getEpic(epicOneId), savedEpicOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne, "вызываемая и сохраненная Задачи должны быть равны");
-
-        history.clear();
     }
 
     @Test
@@ -90,8 +92,6 @@ class InMemoryTaskManagerTest {
         assertEquals(subtaskOneId, subtaskTwo.getUin(), "айди должен остаться тот же");
         assertNotEquals(savedSubtaskOne, taskManager.getSubtask(subtaskOneId), "данные задачи должны поменяться");
         assertNotEquals(savedEpicOne.getStatus(), taskManager.getEpic(epicOneId).getStatus(), "статус эпика должен поменяться");
-
-        historyManager.getHistory().clear();
     }
 
     @Test
@@ -142,6 +142,5 @@ class InMemoryTaskManagerTest {
         assertEquals(0, taskManager.showAllTasks().size(), "длина списка должна быть нулевой");
         assertEquals(0, taskManager.showAllSubtasks().size(), "длина списка должна быть нулевой");
         assertEquals(0, taskManager.showAllEpics().size(), "длина списка должна быть нулевой");
-
     }
 }

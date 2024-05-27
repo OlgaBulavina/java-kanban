@@ -7,14 +7,20 @@ import model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
     private static Integer uin = 0;
-    private HashMap<Integer, Task> taskStorage = new HashMap<>();
-    private HashMap<Integer, Epic> epicStorage = new HashMap<>();
+    private Map<Integer, Task> taskStorage = new HashMap<>();
+    private Map<Integer, Epic> epicStorage = new HashMap<>();
 
-    private HashMap<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
+    private Map<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
+    private HistoryManager inMemoryHistoryManager;
+
+    public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
+        this.inMemoryHistoryManager = inMemoryHistoryManager;
+    }
 
     public int getUin(Task task) {
         return task.getUin();
@@ -221,17 +227,21 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public HashMap<Integer, Task> getTaskStorage() {
+    public Map<Integer, Task> getTaskStorage() {
         return taskStorage;
     }
 
     @Override
-    public HashMap<Integer, Epic> getEpicStorage() {
+    public Map<Integer, Epic> getEpicStorage() {
         return epicStorage;
     }
 
     @Override
-    public HashMap<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
+    public Map<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
         return subtaskStorage;
+    }
+    @Override
+    public HistoryManager getInMemoryHistoryManager() {
+        return inMemoryHistoryManager;
     }
 }
