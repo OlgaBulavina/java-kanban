@@ -59,14 +59,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int uin) {
         Task currentTask = taskStorage.get(uin);
-        InMemoryHistoryManager.updateListOfRecalledTasks(currentTask);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentTask);
         return currentTask;
     }
 
     @Override
     public Epic getEpic(int uin) {
         Epic currentEpic = epicStorage.get(uin);
-        InMemoryHistoryManager.updateListOfRecalledTasks(currentEpic);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentEpic);
         return currentEpic;
     }
 
@@ -80,7 +80,7 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
         }
-        InMemoryHistoryManager.updateListOfRecalledTasks(currentSubtask);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentSubtask);
         return currentSubtask;
     }
 

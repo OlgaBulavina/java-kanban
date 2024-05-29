@@ -11,12 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryHistoryManagerTest {
-    TaskManager taskManager = Managers.getDefault();
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     @AfterEach
     void clearTasksHistory(){
-        historyManager.getHistory().clear();
+        taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
     @Test
@@ -31,7 +30,7 @@ class InMemoryHistoryManagerTest {
         int taskTwoId = taskTwo.getUin();
         final Task changedTask = taskManager.getTask(taskTwoId);
 
-        List<Task> history = historyManager.getHistory();
+        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
         assertEquals(history.get(0).getUin(), history.get(1).getUin(), "айди должны быть равны");
         assertNotEquals(history.get(0), history.get(1), "информация в Задачах должна быть разной");
     }
@@ -44,6 +43,6 @@ class InMemoryHistoryManagerTest {
         for (int i = 0; i < 15; i++) {
             taskManager.getTask(taskOneId);
         }
-        assertEquals(10, historyManager.getHistory().size(), "Длина списка должна оставаться 10");
+        assertEquals(10, taskManager.getInMemoryHistoryManager().getHistory().size(), "Длина списка должна оставаться 10");
     }
 }

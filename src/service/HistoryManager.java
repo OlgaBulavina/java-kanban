@@ -8,4 +8,6 @@ public interface HistoryManager {
     void add(Task task);
 
     LinkedList<Task> getHistory();
+
+    void updateListOfRecalledTasks(Task task);
 }

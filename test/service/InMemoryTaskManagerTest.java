@@ -14,9 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryTaskManagerTest {
 
-    TaskManager taskManager = Managers.getDefault();
-    HistoryManager historyManager = Managers.getDefaultHistory();
-
+    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
     Task taskTwo = new Task("Test addNewTaskTwo", "Test addNewTaskTwo description");
@@ -30,7 +28,7 @@ class InMemoryTaskManagerTest {
 
     @AfterEach
     void clearTasksHistory(){
-        historyManager.getHistory().clear();
+        taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
     @Test
     void checkAddingOfDifferentTypeTasks() {
@@ -61,7 +59,7 @@ class InMemoryTaskManagerTest {
         int subtaskThreeId = subtaskOne.getUin();
         final Subtask savedSubtaskThree = taskManager.getSubtask(subtaskThreeId);
 
-        List<Task> history = historyManager.getHistory();
+        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
 
         assertEquals(history.size(), 8, "должны быть добавлены 8 Задач в историю");
         assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");

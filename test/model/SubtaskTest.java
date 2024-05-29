@@ -2,7 +2,6 @@ package model;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import service.HistoryManager;
 import service.Managers;
 import service.TaskManager;
 
@@ -13,11 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SubtaskTest {
     TaskManager taskManager = Managers.getDefault();
-    HistoryManager historyManager = Managers.getDefaultHistory();
 
     @AfterEach
     void clearTasksHistory(){
-        historyManager.getHistory().clear();
+        taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
     @Test
@@ -50,8 +48,9 @@ class SubtaskTest {
 
         Subtask subtask = new Subtask("Test addNewSubtask", "Test addNewSubtask description");
         taskManager.createSubtask(epicId, subtask);
+        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
         taskManager.getSubtask(subtask.getUin());
-        final List<Task> history = historyManager.getHistory();
+
         assertNotNull(history, "История не пустая.");
         assertEquals(1, history.size(), "История не пустая.");
     }

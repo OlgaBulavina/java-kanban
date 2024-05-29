@@ -3,7 +3,7 @@ package model;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import service.HistoryManager;
+import service.InMemoryTaskManager;
 import service.Managers;
 import service.TaskManager;
 
@@ -13,12 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TaskTest {
-    TaskManager taskManager = Managers.getDefault();
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     @AfterEach
     void clearTasksHistory(){
-        historyManager.getHistory().clear();
+        taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
     @Test
@@ -36,7 +35,6 @@ class TaskTest {
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
-        historyManager.getHistory().clear();
     }
 
     @Test
@@ -44,10 +42,9 @@ class TaskTest {
         Task task = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(task);
         taskManager.getTask(task.getUin());
-        final List<Task> history = historyManager.getHistory();
+        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
         assertNotNull(history, "История не пустая.");
         assertEquals(1, history.size(), "История не пустая.");
-        history.clear();
     }
 
     @Test
@@ -59,7 +56,6 @@ class TaskTest {
         final Task savedTaskTwo = taskManager.getTask(taskId);
 
         assertEquals(savedTaskOne, savedTaskTwo, "Вызванные задачи по одному айди не совпадают");
-        historyManager.getHistory().clear();
     }
 }
 

@@ -2,7 +2,6 @@ package model;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import service.HistoryManager;
 import service.Managers;
 import service.TaskManager;
 
@@ -12,11 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
     TaskManager taskManager = Managers.getDefault();
-    HistoryManager historyManager = Managers.getDefaultHistory();
 
     @AfterEach
     void clearTasksHistory(){
-        historyManager.getHistory().clear();
+        taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
     @Test
@@ -34,7 +32,6 @@ class EpicTest {
         assertNotNull(epics, "Задачи не возвращаются.");
         assertEquals(1, epics.size(), "Неверное количество задач.");
         assertEquals(epic, epics.get(0), "Задачи не совпадают.");
-        historyManager.getHistory().clear();
     }
 
     @Test
@@ -42,10 +39,9 @@ class EpicTest {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         taskManager.getEpic(epic.getUin());
-        final List<Task> history = historyManager.getHistory();
+        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
         assertNotNull(history, "История не пустая.");
         assertEquals(1, history.size(), "История не пустая.");
-        history.clear();
     }
 
     @Test
@@ -57,7 +53,6 @@ class EpicTest {
         final Epic savedEpicTwo = taskManager.getEpic(epicId);
 
         assertEquals(savedEpicOne, savedEpicTwo, "Вызванные задачи по одному айди не совпадают");
-        historyManager.getHistory().clear();
     }
 
     @Test
@@ -67,6 +62,5 @@ class EpicTest {
         int epicId = epic.getUin();
         final Epic savedEpic = taskManager.getEpic(epicId);
         assertFalse(savedEpic.getClass().equals(Subtask.class), "Эпик может быть добавлен в качестве сабтаска");
-        historyManager.getHistory().clear();
     }
 }
