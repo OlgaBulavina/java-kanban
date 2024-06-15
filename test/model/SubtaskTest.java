@@ -14,7 +14,7 @@ class SubtaskTest {
     TaskManager taskManager = Managers.getDefault();
 
     @AfterEach
-    void clearTasksHistory() {
+    void clearTasksHistory(){
         taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
@@ -48,8 +48,8 @@ class SubtaskTest {
 
         Subtask subtask = new Subtask("Test addNewSubtask", "Test addNewSubtask description");
         taskManager.createSubtask(epicId, subtask);
-        taskManager.getSubtask(subtask.getUin());
         final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        taskManager.getSubtask(subtask.getUin());
 
         assertNotNull(history, "История не пустая.");
         assertEquals(1, history.size(), "История не пустая.");

@@ -59,14 +59,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int uin) {
         Task currentTask = taskStorage.get(uin);
-        inMemoryHistoryManager.add(currentTask);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentTask);
         return currentTask;
     }
 
     @Override
     public Epic getEpic(int uin) {
         Epic currentEpic = epicStorage.get(uin);
-        inMemoryHistoryManager.add(currentEpic);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentEpic);
         return currentEpic;
     }
 
@@ -80,7 +80,7 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
         }
-        inMemoryHistoryManager.add(currentSubtask);
+        inMemoryHistoryManager.updateListOfRecalledTasks(currentSubtask);
         return currentSubtask;
     }
 
@@ -89,7 +89,6 @@ public class InMemoryTaskManager implements TaskManager {
         taskStorage.remove(uin);
         newTask.setUin(uin);
         taskStorage.put(uin, newTask);
-        //inMemoryHistoryManager.add(newTask);
     }
 
     @Override
@@ -98,7 +97,6 @@ public class InMemoryTaskManager implements TaskManager {
         epicStorage.remove(uin);
         epicStorage.put(uin, newEpic);
         countEpicStatus(uin);
-        //inMemoryHistoryManager.add(newEpic);
     }
 
     @Override
@@ -116,31 +114,22 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         countEpicStatus(newSubtask.getThisEpicUin());
-        //inMemoryHistoryManager.add(newSubtask);
     }
 
     @Override
     public void deleteTask(int uin) {
         taskStorage.remove(uin);
-        inMemoryHistoryManager.remove(uin);
     }
 
     @Override
     public void deleteEpic(int uin) {
-        //TODO достать все уин номера сабтасков и удалить из истории просмотров
-        ArrayList<Subtask> subtasksList = showEpicSubtasks(uin);
-        for (Subtask subtask : subtasksList) {
-            inMemoryHistoryManager.remove(subtask.getUin());
-        }
         epicStorage.remove(uin);
-        inMemoryHistoryManager.remove(uin);
         subtaskStorage.remove(uin);
-
     }
 
     @Override
     public void deleteSubtask(int subtaskUin) {
-        final int epicUin = getSubtask(subtaskUin).getThisEpicUin();
+        int epicUin = getSubtask(subtaskUin).getThisEpicUin();
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
             for (Integer key : value.keySet()) {
                 if (subtaskUin == key) {
@@ -149,7 +138,6 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
         }
-        inMemoryHistoryManager.remove(subtaskUin);
         countEpicStatus(epicUin);
     }
 
@@ -204,17 +192,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllSubtasksForOneEpic(int uin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
-        for (Subtask subtask : currentSubtaskList.values()) {
-            inMemoryHistoryManager.remove(subtask.getUin());
-        }
         currentSubtaskList.clear();
     }
 
     @Override
     public void deleteAllSubtasksForAllEpics() {
-        for (Integer epicUin : epicStorage.keySet()) {
-            deleteAllSubtasksForOneEpic(epicUin);
-        }
+        subtaskStorage.clear();
     }
 
     private void countEpicStatus(int uin) {
@@ -257,7 +240,6 @@ public class InMemoryTaskManager implements TaskManager {
     public Map<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
         return subtaskStorage;
     }
-
     @Override
     public HistoryManager getInMemoryHistoryManager() {
         return inMemoryHistoryManager;

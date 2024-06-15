@@ -13,7 +13,7 @@ class EpicTest {
     TaskManager taskManager = Managers.getDefault();
 
     @AfterEach
-    void clearTasksHistory() {
+    void clearTasksHistory(){
         taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
