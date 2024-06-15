@@ -27,9 +27,10 @@ class InMemoryTaskManagerTest {
     Subtask subtaskThree = new Subtask("Test addNewSubtaskThree", "Test addNewSubtaskThree description");
 
     @AfterEach
-    void clearTasksHistory(){
+    void clearTasksHistory() {
         taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
+
     @Test
     void checkAddingOfDifferentTypeTasks() {
         taskManager.createTask(taskOne);
@@ -46,22 +47,23 @@ class InMemoryTaskManagerTest {
         int epicOneId = epicOne.getUin();
         final Epic savedEpicOne = taskManager.getEpic(epicOneId);
         taskManager.createEpic(epicTwo);
-        int epicTwoId = epicOne.getUin();
+        int epicTwoId = epicTwo.getUin();
         final Epic savedEpicTwo = taskManager.getEpic(epicTwoId);
+        taskManager.getInMemoryHistoryManager().getHistory();
 
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
         taskManager.createSubtask(epicOneId, subtaskTwo);
-        int subtaskTwoId = subtaskOne.getUin();
+        int subtaskTwoId = subtaskTwo.getUin();
         final Subtask savedSubtaskTwo = taskManager.getSubtask(subtaskTwoId);
         taskManager.createSubtask(epicTwoId, subtaskThree);
-        int subtaskThreeId = subtaskOne.getUin();
+        int subtaskThreeId = subtaskThree.getUin();
         final Subtask savedSubtaskThree = taskManager.getSubtask(subtaskThreeId);
 
-        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
 
-        assertEquals(history.size(), 8, "должны быть добавлены 8 Задач в историю");
+        assertEquals(8, history.size(), "должны быть добавлены 8 Задач в историю");
         assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getEpic(epicOneId), savedEpicOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne, "вызываемая и сохраненная Задачи должны быть равны");

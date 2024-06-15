@@ -16,7 +16,7 @@ class TaskTest {
     TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     @AfterEach
-    void clearTasksHistory(){
+    void clearTasksHistory() {
         taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 

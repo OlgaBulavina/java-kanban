@@ -1,6 +1,7 @@
 package service;
 
-import model.Status;
+import model.Epic;
+import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -8,41 +9,103 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryHistoryManagerTest {
     TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     @AfterEach
-    void clearTasksHistory(){
+    void clearTasksHistory() {
         taskManager.getInMemoryHistoryManager().getHistory().clear();
     }
 
     @Test
-    void savingTaskChangeInHistory() {
+    void getHistoryGivesTasksInFifoOrder() {
+        Task taskOne = new Task("Test addNew TaskOne", "Test addNew TaskOne description");
+        taskManager.createTask(taskOne);
+        int taskOneId = taskOne.getUin();
+        final Task savedTaskOne = taskManager.getTask(taskOneId);
+
+        Task taskTwo = new Task("Test addNew TaskTwo", "Test addNew TaskTwo description");
+        taskManager.createTask(taskTwo);
+        int taskTwoId = taskTwo.getUin();
+        final Task savedTaskTwo = taskManager.getTask(taskTwoId);
+
+        Epic epicOne = new Epic("Test addNew EpicOne", "Test addNew EpicOne description");
+        taskManager.createEpic(epicOne);
+        int epicOneId = epicOne.getUin();
+        final Epic savedEpicOne = taskManager.getEpic(epicOneId);
+
+        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        taskManager.createSubtask(epicOneId, subtaskOne);
+        int subtaskOneId = subtaskOne.getUin();
+        final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
+
+        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        int idSimulator = taskOneId;
+
+        for (Task task : history) {
+            assertEquals(idSimulator, task.getUin(), "UIN codes of added tasks must be in FIFO order");
+            idSimulator++;
+        }
+    }
+
+    @Test
+    void historyDoNotSaveDuplicatesOfEachKindOfTask() {
         Task taskOne = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(taskOne);
         int taskOneId = taskOne.getUin();
         final Task savedTask = taskManager.getTask(taskOneId);
+        taskManager.getTask(taskOneId);
+        taskManager.getTask(taskOneId);
 
-        Task taskTwo = new Task("Test changedTask", "Test changedTask description", Status.IN_PROGRESS);
-        taskManager.updateTask(taskOneId, taskTwo);
-        int taskTwoId = taskTwo.getUin();
-        final Task changedTask = taskManager.getTask(taskTwoId);
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+        taskManager.createEpic(epicOne);
+        int epicOneId = epicOne.getUin();
+        final Epic savedEpicOne = taskManager.getEpic(epicOneId);
+        taskManager.getEpic(epicOneId);
+        taskManager.getEpic(epicOneId);
 
-        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
-        assertEquals(history.get(0).getUin(), history.get(1).getUin(), "айди должны быть равны");
-        assertNotEquals(history.get(0), history.get(1), "информация в Задачах должна быть разной");
+        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        taskManager.createSubtask(epicOneId, subtaskOne);
+        int subtaskOneId = subtaskOne.getUin();
+        final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
+        taskManager.getSubtask(subtaskOneId);
+        taskManager.getSubtask(subtaskOneId);
+
+        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+
+        assertEquals(3, history.size(), "History must include 3 tasks");
     }
 
     @Test
-    void checkHistoryListLengthIfMoreThan10TasksCalled() {
+    void ifDeleteAnyKindOfTaskItIsNoLongerInHistory() {
         Task taskOne = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(taskOne);
         int taskOneId = taskOne.getUin();
-        for (int i = 0; i < 15; i++) {
-            taskManager.getTask(taskOneId);
-        }
-        assertEquals(10, taskManager.getInMemoryHistoryManager().getHistory().size(), "Длина списка должна оставаться 10");
+        final Task savedTask = taskManager.getTask(taskOneId);
+        taskManager.deleteTask(taskOneId);
+
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+        taskManager.createEpic(epicOne);
+        int epicOneId = epicOne.getUin();
+        final Epic savedEpicOne = taskManager.getEpic(epicOneId);
+
+        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        taskManager.createSubtask(epicOneId, subtaskOne);
+        int subtaskOneId = subtaskOne.getUin();
+        final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
+        taskManager.deleteSubtask(subtaskOneId);
+
+        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+
+        assertEquals(1, history.size(), "In History must be only one Epic");
+
+        taskManager.deleteEpic(epicOneId);
+
+        List<Task> historyTwo = taskManager.getInMemoryHistoryManager().getHistory();
+
+        System.out.println(historyTwo);
+
+        assertEquals(0, historyTwo.size(), "History must be clear");
     }
 }
