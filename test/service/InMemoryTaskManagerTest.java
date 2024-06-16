@@ -4,17 +4,17 @@ import model.Epic;
 import model.Status;
 import model.Subtask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryTaskManagerTest {
 
-    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+    TaskManager taskManager;
 
     Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
     Task taskTwo = new Task("Test addNewTaskTwo", "Test addNewTaskTwo description");
@@ -26,9 +26,9 @@ class InMemoryTaskManagerTest {
     Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
     Subtask subtaskThree = new Subtask("Test addNewSubtaskThree", "Test addNewSubtaskThree description");
 
-    @AfterEach
-    void clearTasksHistory() {
-        taskManager.getInMemoryHistoryManager().getHistory().clear();
+    @BeforeEach
+    void setManagers() {
+        taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
     }
 
     @Test
@@ -49,7 +49,7 @@ class InMemoryTaskManagerTest {
         taskManager.createEpic(epicTwo);
         int epicTwoId = epicTwo.getUin();
         final Epic savedEpicTwo = taskManager.getEpic(epicTwoId);
-        taskManager.getInMemoryHistoryManager().getHistory();
+        taskManager.getTasksHistoryFromInMemoryHM();
 
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
@@ -61,7 +61,7 @@ class InMemoryTaskManagerTest {
         int subtaskThreeId = subtaskThree.getUin();
         final Subtask savedSubtaskThree = taskManager.getSubtask(subtaskThreeId);
 
-        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        final Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(8, history.size(), "должны быть добавлены 8 Задач в историю");
         assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");

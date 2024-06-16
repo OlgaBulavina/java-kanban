@@ -6,6 +6,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +90,6 @@ public class InMemoryTaskManager implements TaskManager {
         taskStorage.remove(uin);
         newTask.setUin(uin);
         taskStorage.put(uin, newTask);
-        //inMemoryHistoryManager.add(newTask);
     }
 
     @Override
@@ -98,7 +98,6 @@ public class InMemoryTaskManager implements TaskManager {
         epicStorage.remove(uin);
         epicStorage.put(uin, newEpic);
         countEpicStatus(uin);
-        //inMemoryHistoryManager.add(newEpic);
     }
 
     @Override
@@ -116,7 +115,6 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         countEpicStatus(newSubtask.getThisEpicUin());
-        //inMemoryHistoryManager.add(newSubtask);
     }
 
     @Override
@@ -127,7 +125,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpic(int uin) {
-        //TODO достать все уин номера сабтасков и удалить из истории просмотров
         ArrayList<Subtask> subtasksList = showEpicSubtasks(uin);
         for (Subtask subtask : subtasksList) {
             inMemoryHistoryManager.remove(subtask.getUin());
@@ -241,6 +238,11 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epicToCheck.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public Collection getTasksHistoryFromInMemoryHM() {
+        return inMemoryHistoryManager.getHistory();
     }
 
     @Override

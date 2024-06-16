@@ -3,19 +3,19 @@ package service;
 import model.Epic;
 import model.Subtask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InMemoryHistoryManagerTest {
-    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+    TaskManager taskManager;
 
-    @AfterEach
-    void clearTasksHistory() {
-        taskManager.getInMemoryHistoryManager().getHistory().clear();
+    @BeforeEach
+    void setManagers() {
+        taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
     }
 
     @Test
@@ -40,7 +40,7 @@ class InMemoryHistoryManagerTest {
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
 
-        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
         int idSimulator = taskOneId;
 
         for (Task task : history) {
@@ -72,7 +72,7 @@ class InMemoryHistoryManagerTest {
         taskManager.getSubtask(subtaskOneId);
         taskManager.getSubtask(subtaskOneId);
 
-        final List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        final Collection<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
 
         assertEquals(3, history.size(), "History must include 3 tasks");
     }
@@ -96,15 +96,13 @@ class InMemoryHistoryManagerTest {
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
         taskManager.deleteSubtask(subtaskOneId);
 
-        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        Collection<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
 
         assertEquals(1, history.size(), "In History must be only one Epic");
 
         taskManager.deleteEpic(epicOneId);
 
-        List<Task> historyTwo = taskManager.getInMemoryHistoryManager().getHistory();
-
-        System.out.println(historyTwo);
+        Collection<Task> historyTwo = taskManager.getInMemoryHistoryManager().getHistory();
 
         assertEquals(0, historyTwo.size(), "History must be clear");
     }

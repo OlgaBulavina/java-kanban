@@ -6,6 +6,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,4 +62,6 @@ public interface TaskManager {
     void deleteAllSubtasksForAllEpics();
 
     HistoryManager getInMemoryHistoryManager();
+
+    Collection<Task> getTasksHistoryFromInMemoryHM();
 }

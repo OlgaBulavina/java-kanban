@@ -159,9 +159,7 @@ public class Main {
         System.out.println("тест удаления коллекции сабтасков для определенного эпика:");
         taskManager.deleteAllSubtasksForOneEpic(taskManager.getUin(epicTwo));
         System.out.println(taskManager.getEpic(taskManager.getUin(epicTwo)));
-        System.out.println("тест удаления определенного эпика:");
         taskManager.deleteEpic(taskManager.getUin(epicTwo));
-        //System.out.println(taskManager.getEpic(taskManager.getUin(epicTwo)));
         System.out.println("----");
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
