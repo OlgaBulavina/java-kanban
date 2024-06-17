@@ -6,6 +6,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,14 +60,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int uin) {
         Task currentTask = taskStorage.get(uin);
-        inMemoryHistoryManager.updateListOfRecalledTasks(currentTask);
+        inMemoryHistoryManager.add(currentTask);
         return currentTask;
     }
 
     @Override
     public Epic getEpic(int uin) {
         Epic currentEpic = epicStorage.get(uin);
-        inMemoryHistoryManager.updateListOfRecalledTasks(currentEpic);
+        inMemoryHistoryManager.add(currentEpic);
         return currentEpic;
     }
 
@@ -80,7 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
         }
-        inMemoryHistoryManager.updateListOfRecalledTasks(currentSubtask);
+        inMemoryHistoryManager.add(currentSubtask);
         return currentSubtask;
     }
 
@@ -119,17 +120,24 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int uin) {
         taskStorage.remove(uin);
+        inMemoryHistoryManager.remove(uin);
     }
 
     @Override
     public void deleteEpic(int uin) {
+        ArrayList<Subtask> subtasksList = showEpicSubtasks(uin);
+        for (Subtask subtask : subtasksList) {
+            inMemoryHistoryManager.remove(subtask.getUin());
+        }
         epicStorage.remove(uin);
+        inMemoryHistoryManager.remove(uin);
         subtaskStorage.remove(uin);
+
     }
 
     @Override
     public void deleteSubtask(int subtaskUin) {
-        int epicUin = getSubtask(subtaskUin).getThisEpicUin();
+        final int epicUin = getSubtask(subtaskUin).getThisEpicUin();
         for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
             for (Integer key : value.keySet()) {
                 if (subtaskUin == key) {
@@ -138,6 +146,7 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
         }
+        inMemoryHistoryManager.remove(subtaskUin);
         countEpicStatus(epicUin);
     }
 
@@ -192,12 +201,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllSubtasksForOneEpic(int uin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
+        for (Subtask subtask : currentSubtaskList.values()) {
+            inMemoryHistoryManager.remove(subtask.getUin());
+        }
         currentSubtaskList.clear();
     }
 
     @Override
     public void deleteAllSubtasksForAllEpics() {
-        subtaskStorage.clear();
+        for (Integer epicUin : epicStorage.keySet()) {
+            deleteAllSubtasksForOneEpic(epicUin);
+        }
     }
 
     private void countEpicStatus(int uin) {
@@ -227,6 +241,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public Collection getTasksHistoryFromInMemoryHM() {
+        return inMemoryHistoryManager.getHistory();
+    }
+
+    @Override
     public Map<Integer, Task> getTaskStorage() {
         return taskStorage;
     }
@@ -240,6 +259,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Map<Integer, HashMap<Integer, Subtask>> getSubtaskStorage() {
         return subtaskStorage;
     }
+
     @Override
     public HistoryManager getInMemoryHistoryManager() {
         return inMemoryHistoryManager;

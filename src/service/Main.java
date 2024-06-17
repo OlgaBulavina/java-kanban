@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        
+
         Task taskOne = new Task("taskOne name", "taskOne description");
         taskManager.createTask(taskOne);
         System.out.println(taskOne);
@@ -25,7 +25,6 @@ public class Main {
         System.out.println("проверка метода getDefaultHistory");
         System.out.println(Managers.getDefaultHistory());
         System.out.println("----");
-
 
 
         Epic epicOne = new Epic("epicOne name", "epicOne description");
@@ -160,9 +159,7 @@ public class Main {
         System.out.println("тест удаления коллекции сабтасков для определенного эпика:");
         taskManager.deleteAllSubtasksForOneEpic(taskManager.getUin(epicTwo));
         System.out.println(taskManager.getEpic(taskManager.getUin(epicTwo)));
-        System.out.println("тест удаления определенного эпика:");
         taskManager.deleteEpic(taskManager.getUin(epicTwo));
-        System.out.println(taskManager.getEpic(taskManager.getUin(epicTwo)));
         System.out.println("----");
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
@@ -196,14 +193,14 @@ public class Main {
         manager.showAllEpics();
 
         System.out.println("Подзадачи по УИН номерам эпиков:");
-            for (Epic epic : manager.getEpicStorage().values()) {
-                System.out.println("1. Эпик '" + epic.getName() + "' с УИН " + epic.getUin() + ".\nЕго подзадачи:");
-                System.out.println(manager.showEpicSubtasks(epic.getUin()));
-            }
+        for (Epic epic : manager.getEpicStorage().values()) {
+            System.out.println("1. Эпик '" + epic.getName() + "' с УИН " + epic.getUin() + ".\nЕго подзадачи:");
+            System.out.println(manager.showEpicSubtasks(epic.getUin()));
+        }
 
         System.out.println("История:");
         Managers.getDefaultHistory();
-        }
     }
+}
 
 

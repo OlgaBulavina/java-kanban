@@ -4,17 +4,17 @@ import model.Epic;
 import model.Status;
 import model.Subtask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryTaskManagerTest {
 
-    TaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+    TaskManager taskManager;
 
     Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
     Task taskTwo = new Task("Test addNewTaskTwo", "Test addNewTaskTwo description");
@@ -26,10 +26,11 @@ class InMemoryTaskManagerTest {
     Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
     Subtask subtaskThree = new Subtask("Test addNewSubtaskThree", "Test addNewSubtaskThree description");
 
-    @AfterEach
-    void clearTasksHistory(){
-        taskManager.getInMemoryHistoryManager().getHistory().clear();
+    @BeforeEach
+    void setManagers() {
+        taskManager = Managers.getDefault();;
     }
+
     @Test
     void checkAddingOfDifferentTypeTasks() {
         taskManager.createTask(taskOne);
@@ -46,22 +47,23 @@ class InMemoryTaskManagerTest {
         int epicOneId = epicOne.getUin();
         final Epic savedEpicOne = taskManager.getEpic(epicOneId);
         taskManager.createEpic(epicTwo);
-        int epicTwoId = epicOne.getUin();
+        int epicTwoId = epicTwo.getUin();
         final Epic savedEpicTwo = taskManager.getEpic(epicTwoId);
+        taskManager.getTasksHistoryFromInMemoryHM();
 
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
         taskManager.createSubtask(epicOneId, subtaskTwo);
-        int subtaskTwoId = subtaskOne.getUin();
+        int subtaskTwoId = subtaskTwo.getUin();
         final Subtask savedSubtaskTwo = taskManager.getSubtask(subtaskTwoId);
         taskManager.createSubtask(epicTwoId, subtaskThree);
-        int subtaskThreeId = subtaskOne.getUin();
+        int subtaskThreeId = subtaskThree.getUin();
         final Subtask savedSubtaskThree = taskManager.getSubtask(subtaskThreeId);
 
-        List<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        final Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
-        assertEquals(history.size(), 8, "должны быть добавлены 8 Задач в историю");
+        assertEquals(8, history.size(), "должны быть добавлены 8 Задач в историю");
         assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getEpic(epicOneId), savedEpicOne, "вызываемая и сохраненная Задачи должны быть равны");
         assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne, "вызываемая и сохраненная Задачи должны быть равны");
