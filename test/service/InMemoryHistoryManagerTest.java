@@ -15,7 +15,7 @@ class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void setManagers() {
-        taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+        taskManager = Managers.getDefault();
     }
 
     @Test
@@ -72,7 +72,7 @@ class InMemoryHistoryManagerTest {
         taskManager.getSubtask(subtaskOneId);
         taskManager.getSubtask(subtaskOneId);
 
-        final Collection<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        final Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(3, history.size(), "History must include 3 tasks");
     }
@@ -96,13 +96,13 @@ class InMemoryHistoryManagerTest {
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
         taskManager.deleteSubtask(subtaskOneId);
 
-        Collection<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
+        Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(1, history.size(), "In History must be only one Epic");
 
         taskManager.deleteEpic(epicOneId);
 
-        Collection<Task> historyTwo = taskManager.getInMemoryHistoryManager().getHistory();
+        Collection<Task> historyTwo = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(0, historyTwo.size(), "History must be clear");
     }
