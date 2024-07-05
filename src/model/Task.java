@@ -7,6 +7,7 @@ public class Task {
     private String description;
     private int uin;
     public Status status;
+    public TaskType taskType;
 
     public Task(String name, String description) {
         this.name = name;
@@ -54,8 +55,17 @@ public class Task {
 
     @Override
     public String toString() {
-        return ("name = " + this.getName() + "\ndescription = " + this.description + "\nuin = " + this.uin +
-                "\nstatus = " + this.getStatus());
+
+        if (this.getClass() == Task.class) {
+            this.taskType = TaskType.TASK;
+        } else if (this.getClass() == Subtask.class) {
+            this.taskType = TaskType.SUBTASK;
+        } else if (this.getClass() == Epic.class) {
+            this.taskType = TaskType.EPIC;
+        }
+        return (this.uin + "," + this.taskType +   "," + this.getName() + "," + this.description + "," +
+                this.getStatus()) + (this.getClass() == Subtask.class ? "," +
+                ((Subtask) this).getThisEpicUin() : "");
     }
 
     public int getUin() {
