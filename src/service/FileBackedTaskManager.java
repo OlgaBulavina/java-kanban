@@ -122,7 +122,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                             innerEpicHashMap.put(subtask.getUin(), subtask);
                         }
                         if (subtask.getUin() > lastCommonUin) {
-                            lastCommonUin = task.getUin();
+                            lastCommonUin = subtask.getUin();
                         }
                     }
                     default -> {

@@ -22,8 +22,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingInFile() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup", ".csv", directory);
+        File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
@@ -85,7 +84,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingFromFile() throws IOException {
-        File file = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\testStorage.csv");
+        File file = new File("testStorage.csv");
 
         fileBackedTaskManager = FileBackedTaskManager.loadFromFile(file);
 
@@ -118,8 +117,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingAndSavingOfEmptyFile() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup", ".csv", directory);
+        File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
 
@@ -142,7 +140,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkUinIsBiggestUinAfterLoading() throws IOException {
-        File file = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\testStorage.csv");
+        File file = new File("testStorage.csv");
 
         fileBackedTaskManager = FileBackedTaskManager.loadFromFile(file);
 
@@ -155,8 +153,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingOfChangesInFileAfterTasksDelete() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup", ".csv", directory);
+        File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
@@ -216,8 +213,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingOfChangesInFileAfterTasksUpdate() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup", ".csv", directory);
+        File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
