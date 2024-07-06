@@ -20,7 +20,6 @@ public class Task {
         this.status = status;
     }
 
-
     public String getName() {
         return name;
     }
@@ -52,18 +51,9 @@ public class Task {
         return hash;
     }
 
-
     @Override
     public String toString() {
-/*
-        if (this.getClass() == Task.class) {
-            this.taskType = TaskType.TASK;
-        } else if (this.getClass() == Subtask.class) {
-            this.taskType = TaskType.SUBTASK;
-        } else if (this.getClass() == Epic.class) {
-            this.taskType = TaskType.EPIC;
-        }*/
-        return (this.uin + "," + this.getTaskType() +   "," + this.getName() + "," + this.description + "," +
+        return (this.uin + "," + this.getTaskType() + "," + this.getName() + "," + this.description + "," +
                 this.getStatus()) + (this.getClass() == Subtask.class ? "," +
                 ((Subtask) this).getThisEpicUin() : "");
     }

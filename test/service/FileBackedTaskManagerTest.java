@@ -6,7 +6,10 @@ import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +53,7 @@ public class FileBackedTaskManagerTest {
         final Map<Integer, HashMap<Integer, Subtask>> subtaskMap = fileBackedTaskManager.getSubtaskStorage();
 
         StringBuilder sb1 = new StringBuilder();
-        sb1.append("UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)" + "\n");
+        sb1.append(fileBackedTaskManager.heading);
 
         for (Task task : taskMap.values()) {
             sb1.append(task.toString() + "\n");
@@ -82,13 +85,12 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkLoadingFromFile() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = new File(directory + "\\testStorage.csv");
+        File file = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\testStorage.csv");
 
-        fileBackedTaskManager = FileBackedTaskManager.loadFromFie(file);
+        fileBackedTaskManager = FileBackedTaskManager.loadFromFile(file);
 
         StringBuilder sbFromMemory = new StringBuilder();
-        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        sbFromMemory.append(fileBackedTaskManager.heading);
         ArrayList tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");
@@ -140,10 +142,9 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void checkUinIsBiggestUinAfterLoading() throws IOException {
-        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = new File(directory + "\\testStorage.csv");
+        File file = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\testStorage.csv");
 
-        fileBackedTaskManager = FileBackedTaskManager.loadFromFie(file);
+        fileBackedTaskManager = FileBackedTaskManager.loadFromFile(file);
 
         assertEquals(8, fileBackedTaskManager.uin,
                 "ID задачи должен быть равен наибольшему ID в списке задач из файла");
@@ -183,7 +184,7 @@ public class FileBackedTaskManagerTest {
         fileBackedTaskManager.deleteSubtask(subtaskOne.getUin());
 
         StringBuilder sbFromMemory = new StringBuilder();
-        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        sbFromMemory.append(fileBackedTaskManager.heading);
         ArrayList tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");
@@ -246,7 +247,7 @@ public class FileBackedTaskManagerTest {
                 "Test addUpdatedSubtaskOne description"), Status.IN_PROGRESS);
 
         StringBuilder sbFromMemory = new StringBuilder();
-        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        sbFromMemory.append(fileBackedTaskManager.heading);
         ArrayList tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");

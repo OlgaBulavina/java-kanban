@@ -6,11 +6,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     protected File storageFile = new File("backup.csv");
-    protected final String HEADING = "UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)\n";
+    protected final String heading = "UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)\n";
 
     public FileBackedTaskManager(HistoryManager inMemoryHistoryManager) {
         super(inMemoryHistoryManager);
@@ -18,7 +21,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     public void save() {
         try (FileWriter fileWriter = new FileWriter(storageFile)) {
-            fileWriter.write(HEADING);
+            fileWriter.write(heading);
 
             for (Task task : super.showAllTasks()) {
                 fileWriter.write(task.toString() + "\n");
@@ -70,7 +73,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return new Task(null, null);
     }
 
-    public static FileBackedTaskManager loadFromFie(File file) throws ManagerReadException, NullPointerException {
+    public static FileBackedTaskManager loadFromFile(File file) throws ManagerReadException, NullPointerException {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         try {
             Collection<Task> backupHistoryAllTasksList = new ArrayList<>();
@@ -82,7 +85,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 }
                 String[] tasksDescription = taskDataInString.split("\n");
                 for (String line : tasksDescription) {
-                    if (!(line.trim().equals(fileBackedTaskManager.HEADING.trim())) && !line.isBlank()) {
+                    if (!(line.trim().equals(fileBackedTaskManager.heading.trim())) && !line.isBlank()) {
                         backupHistoryAllTasksList.add(fromString(line.trim()));
                     }
                 }
@@ -147,7 +150,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public void createTask(Task task) {
         super.createTask(task);
         save();
-
     }
 
     @Override
@@ -281,5 +283,4 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public HistoryManager getInMemoryHistoryManager() {
         return super.getInMemoryHistoryManager();
     }
-
 }
