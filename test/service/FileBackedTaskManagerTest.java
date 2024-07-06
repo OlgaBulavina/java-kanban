@@ -146,7 +146,10 @@ public class FileBackedTaskManagerTest {
 
         fileBackedTaskManager = FileBackedTaskManager.loadFromFile(file);
 
-        assertEquals(8, fileBackedTaskManager.uin,
+        int taskCounter = fileBackedTaskManager.showAllSubtasks().size()
+                + fileBackedTaskManager.showAllTasks().size() + fileBackedTaskManager.showAllEpics().size();
+
+        assertEquals(taskCounter, fileBackedTaskManager.uin,
                 "ID задачи должен быть равен наибольшему ID в списке задач из файла");
     }
 
