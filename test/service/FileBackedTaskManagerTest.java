@@ -1,14 +1,13 @@
 package service;
 
 import model.Epic;
+import model.Status;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class FileBackedTaskManagerTest {
     @Test
     void checkLoadingInFile() throws IOException {
         File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup",".csv", directory);
+        File file = createTempFile("backup", ".csv", directory);
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
@@ -32,7 +31,8 @@ public class FileBackedTaskManagerTest {
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
-        Subtask subtaskThree = new Subtask("Test addNewSubtaskThree", "Test addNewSubtaskThree description");
+        Subtask subtaskThree = new Subtask("Test addNewSubtaskThree",
+                "Test addNewSubtaskThree description");
 
         fileBackedTaskManager.createTask(taskOne);
         fileBackedTaskManager.createTask(taskTwo);
@@ -68,7 +68,7 @@ public class FileBackedTaskManagerTest {
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         StringBuilder sb2 = new StringBuilder();
 
-        while(bufferedReader.ready()) {
+        while (bufferedReader.ready()) {
             String line = bufferedReader.readLine();
             sb2.append(line + "\n");
         }
@@ -81,23 +81,43 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void checkLoadingFromFile() {
+    void checkLoadingFromFile() throws IOException {
         File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
         File file = new File(directory + "\\testStorage.csv");
 
         fileBackedTaskManager = FileBackedTaskManager.loadFromFie(file);
 
-        System.out.println(fileBackedTaskManager.showAllTasks());
-        System.out.println(fileBackedTaskManager.showAllEpics());
-        System.out.println(fileBackedTaskManager.showAllSubtasks());
+        StringBuilder sbFromMemory = new StringBuilder();
+        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        for (Object task : tasks) {
+            sbFromMemory.append(task.toString() + "\n");
+        }
+        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        for (Object epic : epics) {
+            sbFromMemory.append(epic.toString() + "\n");
+        }
+        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        for (Object subtask : subtasks) {
+            sbFromMemory.append(subtask.toString() + "\n");
+        }
 
+        FileReader fileReader = new FileReader(file);
+        BufferedReader br = new BufferedReader(fileReader);
+        StringBuilder sbFromFile = new StringBuilder();
+        while (br.ready()) {
+            sbFromFile.append(br.readLine() + "\n");
+        }
+        br.close();
+        fileReader.close();
 
+        assertEquals(sbFromFile.toString(), sbFromMemory.toString());
     }
 
     @Test
-    void checkLoadingAndSavingOfEmptyFile() throws IOException{
+    void checkLoadingAndSavingOfEmptyFile() throws IOException {
         File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
-        File file = createTempFile("backup",".csv", directory);
+        File file = createTempFile("backup", ".csv", directory);
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
 
@@ -106,7 +126,7 @@ public class FileBackedTaskManagerTest {
 
         StringBuilder sb = new StringBuilder();
 
-        while(bufferedReader.ready()) {
+        while (bufferedReader.ready()) {
             String line = bufferedReader.readLine();
             sb.append(line);
         }
@@ -118,8 +138,138 @@ public class FileBackedTaskManagerTest {
         file.deleteOnExit();
     }
 
-    void checkUinIsBiggestUinAfterLoading() {
+    @Test
+    void checkUinIsBiggestUinAfterLoading() throws IOException {
+        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
+        File file = new File(directory + "\\testStorage.csv");
 
+        fileBackedTaskManager = FileBackedTaskManager.loadFromFie(file);
+
+        assertEquals(8, fileBackedTaskManager.uin,
+                "ID задачи должен быть равен наибольшему ID в списке задач из файла");
     }
 
+    @Test
+    void checkLoadingOfChangesInFileAfterTasksDelete() throws IOException {
+        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
+        File file = createTempFile("backup", ".csv", directory);
+        fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
+        fileBackedTaskManager.storageFile = file;
+        Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
+        Task taskTwo = new Task("Test addNewTaskTwo", "Test addNewTaskTwo description");
+        Task taskThree = new Task("Test addNewTaskThree", "Test addNewTaskThree description");
+
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+        Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
+        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
+        Subtask subtaskThree = new Subtask("Test addNewSubtaskThree",
+                "Test addNewSubtaskThree description");
+
+        fileBackedTaskManager.createTask(taskOne);
+        fileBackedTaskManager.createTask(taskTwo);
+        fileBackedTaskManager.createTask(taskThree);
+
+        fileBackedTaskManager.createEpic(epicOne);
+        fileBackedTaskManager.createEpic(epicTwo);
+
+        fileBackedTaskManager.createSubtask(epicOne.getUin(), subtaskOne);
+        fileBackedTaskManager.createSubtask(epicOne.getUin(), subtaskTwo);
+        fileBackedTaskManager.createSubtask(epicTwo.getUin(), subtaskThree);
+
+        fileBackedTaskManager.deleteTask(taskOne.getUin());
+        fileBackedTaskManager.deleteTask(taskTwo.getUin());
+        fileBackedTaskManager.deleteEpic(epicTwo.getUin());
+        fileBackedTaskManager.deleteSubtask(subtaskOne.getUin());
+
+        StringBuilder sbFromMemory = new StringBuilder();
+        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        for (Object task : tasks) {
+            sbFromMemory.append(task.toString() + "\n");
+        }
+        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        for (Object epic : epics) {
+            sbFromMemory.append(epic.toString() + "\n");
+        }
+        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        for (Object subtask : subtasks) {
+            sbFromMemory.append(subtask.toString() + "\n");
+        }
+
+        FileReader fileReader = new FileReader(file);
+        BufferedReader br = new BufferedReader(fileReader);
+        StringBuilder sbFromFile = new StringBuilder();
+        while (br.ready()) {
+            sbFromFile.append(br.readLine() + "\n");
+        }
+        br.close();
+        fileReader.close();
+
+        assertEquals(sbFromFile.toString(), sbFromMemory.toString());
+        file.deleteOnExit();
+    }
+
+    @Test
+    void checkLoadingOfChangesInFileAfterTasksUpdate() throws IOException {
+        File directory = new File("C:\\Users\\olyab\\IdeaProjects\\java-kanban\\");
+        File file = createTempFile("backup", ".csv", directory);
+        fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
+        fileBackedTaskManager.storageFile = file;
+        Task taskOne = new Task("Test addNewTaskOne", "Test addNewTaskOne description");
+        Task taskTwo = new Task("Test addNewTaskTwo", "Test addNewTaskTwo description");
+        Task taskThree = new Task("Test addNewTaskThree", "Test addNewTaskThree description");
+
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+        Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
+        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        Subtask subtaskTwo = new Subtask("Test addNewSubtaskTwo", "Test addNewSubtaskTwo description");
+        Subtask subtaskThree = new Subtask("Test addNewSubtaskThree",
+                "Test addNewSubtaskThree description");
+
+        fileBackedTaskManager.createTask(taskOne);
+        fileBackedTaskManager.createTask(taskTwo);
+        fileBackedTaskManager.createTask(taskThree);
+
+        fileBackedTaskManager.createEpic(epicOne);
+        fileBackedTaskManager.createEpic(epicTwo);
+
+        fileBackedTaskManager.createSubtask(epicOne.getUin(), subtaskOne);
+        fileBackedTaskManager.createSubtask(epicOne.getUin(), subtaskTwo);
+        fileBackedTaskManager.createSubtask(epicTwo.getUin(), subtaskThree);
+
+        fileBackedTaskManager.updateTask(taskOne.getUin(), new Task("Test addUpdatedTaskOne",
+                "Test addUpdatedTaskOne description", Status.IN_PROGRESS));
+        fileBackedTaskManager.updateEpic(epicOne.getUin(), new Epic("Test addUpdatedEpicOne",
+                "Test addUpdatedEpicOne description"));
+        fileBackedTaskManager.updateSubtask(subtaskOne.getUin(), new Subtask("Test addUpdatedSubtaskOne",
+                "Test addUpdatedSubtaskOne description"), Status.IN_PROGRESS);
+
+        StringBuilder sbFromMemory = new StringBuilder();
+        sbFromMemory.append(fileBackedTaskManager.HEADING);
+        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        for (Object task : tasks) {
+            sbFromMemory.append(task.toString() + "\n");
+        }
+        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        for (Object epic : epics) {
+            sbFromMemory.append(epic.toString() + "\n");
+        }
+        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        for (Object subtask : subtasks) {
+            sbFromMemory.append(subtask.toString() + "\n");
+        }
+
+        FileReader fileReader = new FileReader(file);
+        BufferedReader br = new BufferedReader(fileReader);
+        StringBuilder sbFromFile = new StringBuilder();
+        while (br.ready()) {
+            sbFromFile.append(br.readLine() + "\n");
+        }
+        br.close();
+        fileReader.close();
+
+        assertEquals(sbFromFile.toString(), sbFromMemory.toString());
+        file.deleteOnExit();
+    }
 }

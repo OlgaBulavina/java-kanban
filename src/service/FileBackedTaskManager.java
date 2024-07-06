@@ -10,7 +10,7 @@ import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     protected File storageFile = new File("backup.csv");
-    private final String HEADING = "UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)\n";
+    protected final String HEADING = "UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)\n";
 
     public FileBackedTaskManager(HistoryManager inMemoryHistoryManager) {
         super(inMemoryHistoryManager);
@@ -38,7 +38,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     public static Task fromString(String value) {
-        if(!value.isEmpty() && !value.isBlank()) {
+        if (!value.isEmpty() && !value.isBlank()) {
             String[] taskData = value.split(",");
             int taskUin = Integer.parseInt(taskData[0]);
             TaskType taskType = TaskType.valueOf(taskData[1]);
@@ -77,7 +77,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             int lastCommonUin = 0;
             try {
                 String taskDataInString = Files.readString(file.toPath());
-                if(taskDataInString.isBlank() || taskDataInString.isEmpty()) {
+                if (taskDataInString.isBlank() || taskDataInString.isEmpty()) {
                     return fileBackedTaskManager;
                 }
                 String[] tasksDescription = taskDataInString.split("\n");
@@ -94,7 +94,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             }
 
             for (Task task : backupHistoryAllTasksList) {
-                TaskType taskType = (task.taskType);
+                TaskType taskType = (task.getTaskType());
                 switch (taskType) {
                     case TASK -> {
                         fileBackedTaskManager.getTaskStorage().put(task.getUin(), task);
@@ -111,8 +111,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     case SUBTASK -> {
                         Subtask subtask = (Subtask) task;
                         HashMap<Integer, Subtask> innerHashMap = new HashMap<>();
-                        innerHashMap.put(task.getUin(), subtask);
-                        fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(), innerHashMap);
+                        innerHashMap.put(subtask.getUin(), subtask);
+                        if (!fileBackedTaskManager.getSubtaskStorage().containsKey(subtask.getThisEpicUin())) {
+                            fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(), innerHashMap);
+                        } else {
+                            HashMap<Integer, Subtask> innerEpicHashMap = fileBackedTaskManager.getSubtaskStorage().get(subtask.getThisEpicUin());
+                            innerEpicHashMap.put(subtask.getUin(), subtask);
+                        }
                         if (subtask.getUin() > lastCommonUin) {
                             lastCommonUin = task.getUin();
                         }
@@ -124,8 +129,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             fileBackedTaskManager.uin = lastCommonUin;
         } catch (ManagerReadException e) {
             System.out.println(e.getMessage());
-       /* } catch (NullPointerException e) {
-            System.out.println(e.getMessage());*/
         }
         return fileBackedTaskManager;
     }
