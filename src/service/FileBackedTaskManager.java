@@ -34,9 +34,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Произошла ошибка с записью в файл\n");
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -75,64 +72,58 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     public static FileBackedTaskManager loadFromFile(File file) throws ManagerReadException, NullPointerException {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
-        try {
-            Collection<Task> backupHistoryAllTasksList = new ArrayList<>();
-            int lastCommonUin = 0;
-            try {
-                String taskDataInString = Files.readString(file.toPath());
-                if (taskDataInString.isBlank() || taskDataInString.isEmpty()) {
-                    return fileBackedTaskManager;
-                }
-                String[] tasksDescription = taskDataInString.split("\n");
-                for (String line : tasksDescription) {
-                    if (!(line.trim().equals(fileBackedTaskManager.heading.trim())) && !line.isBlank()) {
-                        backupHistoryAllTasksList.add(fromString(line.trim()));
-                    }
-                }
-            } catch (IOException e) {
-                throw new ManagerReadException("Произошла ошибка чтения файла\n");
-            } catch (ManagerReadException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
 
-            for (Task task : backupHistoryAllTasksList) {
-                TaskType taskType = (task.getTaskType());
-                switch (taskType) {
-                    case TASK -> {
-                        fileBackedTaskManager.getTaskStorage().put(task.getUin(), task);
-                        if (task.getUin() > lastCommonUin) {
-                            lastCommonUin = task.getUin();
-                        }
-                    }
-                    case EPIC -> {
-                        fileBackedTaskManager.getEpicStorage().put(task.getUin(), (Epic) task);
-                        if (task.getUin() > lastCommonUin) {
-                            lastCommonUin = task.getUin();
-                        }
-                    }
-                    case SUBTASK -> {
-                        Subtask subtask = (Subtask) task;
-                        HashMap<Integer, Subtask> innerHashMap = new HashMap<>();
-                        innerHashMap.put(subtask.getUin(), subtask);
-                        if (!fileBackedTaskManager.getSubtaskStorage().containsKey(subtask.getThisEpicUin())) {
-                            fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(), innerHashMap);
-                        } else {
-                            HashMap<Integer, Subtask> innerEpicHashMap = fileBackedTaskManager.getSubtaskStorage().get(subtask.getThisEpicUin());
-                            innerEpicHashMap.put(subtask.getUin(), subtask);
-                        }
-                        if (subtask.getUin() > lastCommonUin) {
-                            lastCommonUin = subtask.getUin();
-                        }
-                    }
-                    default -> {
-                    }
+        Collection<Task> backupHistoryAllTasksList = new ArrayList<>();
+        int lastCommonUin = 0;
+        try {
+            String taskDataInString = Files.readString(file.toPath());
+            if (taskDataInString.isBlank() || taskDataInString.isEmpty()) {
+                return fileBackedTaskManager;
+            }
+            String[] tasksDescription = taskDataInString.split("\n");
+            for (String line : tasksDescription) {
+                if (!(line.trim().equals(fileBackedTaskManager.heading.trim())) && !line.isBlank()) {
+                    backupHistoryAllTasksList.add(fromString(line.trim()));
                 }
             }
-            fileBackedTaskManager.uin = lastCommonUin;
-        } catch (ManagerReadException e) {
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            throw new ManagerReadException("Произошла ошибка чтения файла\n");
         }
+
+        for (Task task : backupHistoryAllTasksList) {
+            TaskType taskType = (task.getTaskType());
+            switch (taskType) {
+                case TASK -> {
+                    fileBackedTaskManager.getTaskStorage().put(task.getUin(), task);
+                    if (task.getUin() > lastCommonUin) {
+                        lastCommonUin = task.getUin();
+                    }
+                }
+                case EPIC -> {
+                    fileBackedTaskManager.getEpicStorage().put(task.getUin(), (Epic) task);
+                    if (task.getUin() > lastCommonUin) {
+                        lastCommonUin = task.getUin();
+                    }
+                }
+                case SUBTASK -> {
+                    Subtask subtask = (Subtask) task;
+                    HashMap<Integer, Subtask> innerHashMap = new HashMap<>();
+                    innerHashMap.put(subtask.getUin(), subtask);
+                    if (!fileBackedTaskManager.getSubtaskStorage().containsKey(subtask.getThisEpicUin())) {
+                        fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(), innerHashMap);
+                    } else {
+                        HashMap<Integer, Subtask> innerEpicHashMap = fileBackedTaskManager.getSubtaskStorage().get(subtask.getThisEpicUin());
+                        innerEpicHashMap.put(subtask.getUin(), subtask);
+                    }
+                    if (subtask.getUin() > lastCommonUin) {
+                        lastCommonUin = subtask.getUin();
+                    }
+                }
+                default -> {
+                }
+            }
+        }
+        fileBackedTaskManager.uin = lastCommonUin;
         return fileBackedTaskManager;
     }
 

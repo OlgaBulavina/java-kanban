@@ -7,7 +7,6 @@ public class Task {
     private String description;
     private int uin;
     public Status status;
-    private static TaskType taskType = TaskType.TASK;
 
     public Task(String name, String description) {
         this.name = name;
@@ -67,6 +66,6 @@ public class Task {
     }
 
     public TaskType getTaskType() {
-        return taskType;
+        return TaskType.TASK;
     }
 }

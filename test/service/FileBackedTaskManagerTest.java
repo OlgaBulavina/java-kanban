@@ -10,8 +10,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.io.File.createTempFile;
@@ -90,15 +90,15 @@ public class FileBackedTaskManagerTest {
 
         StringBuilder sbFromMemory = new StringBuilder();
         sbFromMemory.append(fileBackedTaskManager.heading);
-        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        List tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");
         }
-        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        List epics = fileBackedTaskManager.showAllEpics();
         for (Object epic : epics) {
             sbFromMemory.append(epic.toString() + "\n");
         }
-        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        List subtasks = fileBackedTaskManager.showAllSubtasks();
         for (Object subtask : subtasks) {
             sbFromMemory.append(subtask.toString() + "\n");
         }
@@ -185,15 +185,15 @@ public class FileBackedTaskManagerTest {
 
         StringBuilder sbFromMemory = new StringBuilder();
         sbFromMemory.append(fileBackedTaskManager.heading);
-        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        List tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");
         }
-        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        List epics = fileBackedTaskManager.showAllEpics();
         for (Object epic : epics) {
             sbFromMemory.append(epic.toString() + "\n");
         }
-        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        List subtasks = fileBackedTaskManager.showAllSubtasks();
         for (Object subtask : subtasks) {
             sbFromMemory.append(subtask.toString() + "\n");
         }
@@ -247,15 +247,15 @@ public class FileBackedTaskManagerTest {
 
         StringBuilder sbFromMemory = new StringBuilder();
         sbFromMemory.append(fileBackedTaskManager.heading);
-        ArrayList tasks = fileBackedTaskManager.showAllTasks();
+        List tasks = fileBackedTaskManager.showAllTasks();
         for (Object task : tasks) {
             sbFromMemory.append(task.toString() + "\n");
         }
-        ArrayList epics = fileBackedTaskManager.showAllEpics();
+        List epics = fileBackedTaskManager.showAllEpics();
         for (Object epic : epics) {
             sbFromMemory.append(epic.toString() + "\n");
         }
-        ArrayList subtasks = fileBackedTaskManager.showAllSubtasks();
+        List subtasks = fileBackedTaskManager.showAllSubtasks();
         for (Object subtask : subtasks) {
             sbFromMemory.append(subtask.toString() + "\n");
         }
