@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private static Integer uin = 0;
+    protected static Integer uin = 0;
     private Map<Integer, Task> taskStorage = new HashMap<>();
-    private Map<Integer, Epic> epicStorage = new HashMap<>();
+    protected Map<Integer, Epic> epicStorage = new HashMap<>();
 
     private Map<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
     private HistoryManager inMemoryHistoryManager;

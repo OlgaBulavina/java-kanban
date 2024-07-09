@@ -19,7 +19,6 @@ public class Task {
         this.status = status;
     }
 
-
     public String getName() {
         return name;
     }
@@ -51,11 +50,11 @@ public class Task {
         return hash;
     }
 
-
     @Override
     public String toString() {
-        return ("name = " + this.getName() + "\ndescription = " + this.description + "\nuin = " + this.uin +
-                "\nstatus = " + this.getStatus());
+        return (this.uin + "," + this.getTaskType() + "," + this.getName() + "," + this.description + "," +
+                this.getStatus()) + (this.getClass() == Subtask.class ? "," +
+                ((Subtask) this).getThisEpicUin() : "");
     }
 
     public int getUin() {
@@ -64,5 +63,9 @@ public class Task {
 
     public int setUin(int uin) {
         return this.uin = uin;
+    }
+
+    public TaskType getTaskType() {
+        return TaskType.TASK;
     }
 }

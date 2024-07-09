@@ -7,6 +7,11 @@ public class Subtask extends Task {
         super(name, description);
     }
 
+    @Override
+    public TaskType getTaskType() {
+        return TaskType.SUBTASK;
+    }
+
     public void setEpicUin(int epicUin) {
         this.thisEpicUin = epicUin;
     }
@@ -14,4 +19,5 @@ public class Subtask extends Task {
     public int getThisEpicUin() {
         return thisEpicUin;
     }
+
 }
