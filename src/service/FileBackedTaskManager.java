@@ -6,14 +6,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     protected File storageFile = new File("backup.csv");
-    protected final String heading = "UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)\n";
+    protected final String heading = "UIN,TYPE,NAME,DESCRIPTION,STATUS,START_TIME,DURATION,EPIC_NUMBER(FOR SUBTASK)\n";
 
     public FileBackedTaskManager(HistoryManager inMemoryHistoryManager) {
         super(inMemoryHistoryManager);
@@ -22,18 +21,32 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public void save() {
         try (FileWriter fileWriter = new FileWriter(storageFile)) {
             fileWriter.write(heading);
-
-            for (Task task : super.showAllTasks()) {
-                fileWriter.write(task.toString() + "\n");
-            }
-            for (Epic epic : super.showAllEpics()) {
-                fileWriter.write(epic.toString() + "\n");
-            }
-            for (Subtask subtask : super.showAllSubtasks()) {
-                fileWriter.write(subtask.toString() + "\n");
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException("Произошла ошибка с записью в файл\n");
+            super.showAllTasks().stream()
+                    .forEach(task -> {
+                        try {
+                            fileWriter.write(task.toString() + "\n");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            super.showAllEpics().stream()
+                    .forEach(epic -> {
+                        try {
+                            fileWriter.write(epic.toString() + "\n");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            super.showAllSubtasks().stream()
+                    .forEach(subtask -> {
+                        try {
+                            fileWriter.write(subtask.toString() + "\n");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (IOException | RuntimeException e) {
+            throw new ManagerSaveException("\"Произошла ошибка с записью в файл\\n\"");
         }
     }
 
@@ -45,24 +58,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             String taskName = taskData[2];
             String taskDescription = taskData[3];
             Status taskStatus = Status.valueOf(taskData[4]);
+            String startTime = taskData[5];
+            long duration = Long.parseLong(taskData[6]);
 
             switch (taskType) {
                 case TASK -> {
-                    Task task = new Task(taskName, taskDescription, taskStatus);
+                    Task task = new Task(Duration.ofMinutes(duration), LocalDateTime.parse(startTime), taskName,
+                            taskDescription, taskStatus);
                     task.setUin(taskUin);
                     return task;
                 }
                 case EPIC -> {
-                    Epic task = new Epic(taskName, taskDescription);
+                    Epic task = new Epic(Duration.ofMinutes(duration), LocalDateTime.parse(startTime), taskName,
+                            taskDescription, taskStatus);
                     task.setStatus(taskStatus);
                     task.setUin(taskUin);
                     return task;
                 }
                 case SUBTASK -> {
-                    Subtask task = new Subtask(taskName, taskDescription);
+                    Subtask task = new Subtask(Duration.ofMinutes(duration), LocalDateTime.parse(startTime), taskName,
+                            taskDescription, taskStatus);
                     task.setStatus(taskStatus);
                     task.setUin(taskUin);
-                    task.setEpicUin(Integer.parseInt(taskData[5]));
+                    task.setEpicUin(Integer.parseInt(taskData[7]));
                     return task;
                 }
             }
@@ -74,56 +92,53 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
 
         Collection<Task> backupHistoryAllTasksList = new ArrayList<>();
-        int lastCommonUin = 0;
+        //int lastCommonUin = 0;
         try {
             String taskDataInString = Files.readString(file.toPath());
             if (taskDataInString.isBlank() || taskDataInString.isEmpty()) {
                 return fileBackedTaskManager;
             }
             String[] tasksDescription = taskDataInString.split("\n");
-            for (String line : tasksDescription) {
-                if (!(line.trim().equals(fileBackedTaskManager.heading.trim())) && !line.isBlank()) {
-                    backupHistoryAllTasksList.add(fromString(line.trim()));
-                }
-            }
+            Arrays.stream(tasksDescription)
+                    .filter(line -> !(line.trim().equals(fileBackedTaskManager.heading.trim())) && !line.isBlank())
+                    .forEach(line -> backupHistoryAllTasksList.add(fromString(line.trim())));
         } catch (IOException e) {
             throw new ManagerReadException("Произошла ошибка чтения файла\n");
         }
 
-        for (Task task : backupHistoryAllTasksList) {
-            TaskType taskType = (task.getTaskType());
-            switch (taskType) {
-                case TASK -> {
-                    fileBackedTaskManager.getTaskStorage().put(task.getUin(), task);
-                    if (task.getUin() > lastCommonUin) {
-                        lastCommonUin = task.getUin();
-                    }
-                }
-                case EPIC -> {
-                    fileBackedTaskManager.getEpicStorage().put(task.getUin(), (Epic) task);
-                    if (task.getUin() > lastCommonUin) {
-                        lastCommonUin = task.getUin();
-                    }
-                }
-                case SUBTASK -> {
-                    Subtask subtask = (Subtask) task;
-                    HashMap<Integer, Subtask> innerHashMap = new HashMap<>();
-                    innerHashMap.put(subtask.getUin(), subtask);
-                    if (!fileBackedTaskManager.getSubtaskStorage().containsKey(subtask.getThisEpicUin())) {
-                        fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(), innerHashMap);
-                    } else {
-                        HashMap<Integer, Subtask> innerEpicHashMap = fileBackedTaskManager.getSubtaskStorage().get(subtask.getThisEpicUin());
-                        innerEpicHashMap.put(subtask.getUin(), subtask);
-                    }
-                    if (subtask.getUin() > lastCommonUin) {
-                        lastCommonUin = subtask.getUin();
-                    }
-                }
-                default -> {
-                }
-            }
-        }
-        fileBackedTaskManager.uin = lastCommonUin;
+        fileBackedTaskManager.uin =
+
+                backupHistoryAllTasksList.stream() //added
+                        .mapToInt(task -> {
+                            TaskType taskType = (task.getTaskType());
+                            switch (taskType) {
+                                case TASK -> {
+                                    fileBackedTaskManager.getTaskStorage().put(task.getUin(), task);
+                                }
+                                case EPIC -> {
+                                    fileBackedTaskManager.getEpicStorage().put(task.getUin(), (Epic) task);
+                                }
+                                case SUBTASK -> {
+                                    Subtask subtask = (Subtask) task;
+                                    HashMap<Integer, Subtask> innerHashMap = new HashMap<>();
+                                    innerHashMap.put(subtask.getUin(), subtask);
+                                    if (!fileBackedTaskManager.getSubtaskStorage()
+                                            .containsKey(subtask.getThisEpicUin())) {
+                                        fileBackedTaskManager.getSubtaskStorage().put(subtask.getThisEpicUin(),
+                                                innerHashMap);
+                                    } else {
+                                        HashMap<Integer, Subtask> innerEpicHashMap = fileBackedTaskManager
+                                                .getSubtaskStorage().get(subtask.getThisEpicUin());
+                                        innerEpicHashMap.put(subtask.getUin(), subtask);
+                                    }
+                                }
+                                default -> {
+                                }
+                            }
+                            return task.getUin();
+                        })
+                        .max().getAsInt();
+
         return fileBackedTaskManager;
     }
 

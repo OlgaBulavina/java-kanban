@@ -6,7 +6,12 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,12 +25,14 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void getHistoryGivesTasksInFifoOrder() {
-        Task taskOne = new Task("Test addNew TaskOne", "Test addNew TaskOne description");
+        Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
+                "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
         int taskOneId = taskOne.getUin();
         final Task savedTaskOne = taskManager.getTask(taskOneId);
 
-        Task taskTwo = new Task("Test addNew TaskTwo", "Test addNew TaskTwo description");
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+                "Test addNewTaskTwo", "Test addNewTaskTwo description");
         taskManager.createTask(taskTwo);
         int taskTwoId = taskTwo.getUin();
         final Task savedTaskTwo = taskManager.getTask(taskTwoId);
@@ -35,7 +42,9 @@ class InMemoryHistoryManagerTest {
         int epicOneId = epicOne.getUin();
         final Epic savedEpicOne = taskManager.getEpic(epicOneId);
 
-        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        Subtask subtaskOne = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(45, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
@@ -51,7 +60,8 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void historyDoNotSaveDuplicatesOfEachKindOfTask() {
-        Task taskOne = new Task("Test addNewTask", "Test addNewTask description");
+        Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
+                "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
         int taskOneId = taskOne.getUin();
         final Task savedTask = taskManager.getTask(taskOneId);
@@ -65,7 +75,9 @@ class InMemoryHistoryManagerTest {
         taskManager.getEpic(epicOneId);
         taskManager.getEpic(epicOneId);
 
-        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        Subtask subtaskOne = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
@@ -79,7 +91,8 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void ifDeleteAnyKindOfTaskItIsNoLongerInHistory() {
-        Task taskOne = new Task("Test addNewTask", "Test addNewTask description");
+        Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
+                "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
         int taskOneId = taskOne.getUin();
         final Task savedTask = taskManager.getTask(taskOneId);
@@ -90,7 +103,9 @@ class InMemoryHistoryManagerTest {
         int epicOneId = epicOne.getUin();
         final Epic savedEpicOne = taskManager.getEpic(epicOneId);
 
-        Subtask subtaskOne = new Subtask("Test addNewSubtaskOne", "Test addNewSubtaskOne description");
+        Subtask subtaskOne = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicOneId, subtaskOne);
         int subtaskOneId = subtaskOne.getUin();
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);

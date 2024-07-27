@@ -6,11 +6,14 @@ import service.InMemoryTaskManager;
 import service.Managers;
 import service.TaskManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SubtaskTest {
     TaskManager taskManager;
@@ -26,7 +29,9 @@ class SubtaskTest {
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
 
-        Subtask subtask = new Subtask("Test addNewSubtask", "Test addNewSubtask description");
+        Subtask subtask = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         int subtaskId = subtask.getUin();
 
@@ -48,7 +53,9 @@ class SubtaskTest {
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
 
-        Subtask subtask = new Subtask("Test addNewSubtask", "Test addNewSubtask description");
+        Subtask subtask = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         taskManager.getSubtask(subtask.getUin());
         final Collection<Task> history = taskManager.getInMemoryHistoryManager().getHistory();
@@ -62,7 +69,9 @@ class SubtaskTest {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
-        Subtask subtask = new Subtask("Test addNewTask", "Test addNewTask description");
+        Subtask subtask = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         int subtaskId = subtask.getUin();
 
@@ -70,5 +79,20 @@ class SubtaskTest {
         final Subtask savedSubtaskTwo = taskManager.getSubtask(subtaskId);
 
         assertEquals(savedSubtaskOne, savedSubtaskTwo, "Вызванные задачи по одному айди не совпадают");
+    }
+
+    @Test
+    void checkEpicStartDTAndEndDTAndDurationIfNoEntryData() {
+        Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
+        taskManager.createEpic(epic);
+        int epicId = epic.getUin();
+        Subtask subtask = new Subtask("Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description");
+        taskManager.createSubtask(epicId, subtask);
+        Duration defaultDuration= Duration.of(0L, ChronoUnit.MINUTES);
+
+        assertNull(subtask.startTime);
+        assertEquals(subtask.getDuration(), defaultDuration);
+        assertNull(subtask.getEndTime());
     }
 }

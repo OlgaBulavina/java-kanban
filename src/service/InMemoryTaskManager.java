@@ -5,10 +5,12 @@ import model.Status;
 import model.Subtask;
 import model.Task;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -17,6 +19,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected Map<Integer, Epic> epicStorage = new HashMap<>();
 
     private Map<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
+
+    private TreeSet<Task> collectedSetOfPrioritizedTasks = new TreeSet<>();
     private HistoryManager inMemoryHistoryManager;
 
     public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
@@ -36,7 +40,11 @@ public class InMemoryTaskManager implements TaskManager {
     public void createTask(Task task) {
         setUin(task);
         task.setStatus(Status.NEW);
-        taskStorage.put(getUin(task), task);
+
+        if (!taskStartEndTimeValidator(task)) {
+            taskStorage.put(getUin(task), task);
+            prioritizeTasks();
+        }
     }
 
     @Override
@@ -52,9 +60,21 @@ public class InMemoryTaskManager implements TaskManager {
     public void createSubtask(int epicUin, Subtask subtask) {
         setUin(subtask);
         subtask.setEpicUin(epicUin);
-        subtask.setStatus(Status.NEW);
-        HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(subtask.getThisEpicUin());
-        currentSubtaskList.put(getUin(subtask), subtask);
+        if (subtask.getStatus() == null) {
+            subtask.setStatus(Status.NEW);
+        }
+        if (subtask.getDuration() == null) {
+            subtask.setDuration(Duration.ofMinutes(0L));
+        }
+        if (!taskStartEndTimeValidator(subtask)) {
+            HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
+            currentSubtaskList.put(getUin(subtask), subtask);
+            updateEpicDuration(epicUin);
+            countEpicStatus(epicUin);
+            setEpicStartTime(epicUin);
+            updateEpicEndTime(epicUin);
+            prioritizeTasks();
+        }
     }
 
     @Override
@@ -73,23 +93,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask getSubtask(int uin) {
-        Subtask currentSubtask = null;
-        for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
-            for (Integer key : value.keySet()) {
-                if (uin == key) {
-                    currentSubtask = value.get(key);
-                }
-            }
-        }
+        Subtask currentSubtask = subtaskStorage.values().stream()
+                .flatMap(subtasks -> subtasks.values().stream())
+                .filter(subtask -> subtask.getUin() == uin)
+                .findAny()
+                .orElse(new Subtask("null", "null"));
         inMemoryHistoryManager.add(currentSubtask);
         return currentSubtask;
     }
 
     @Override
     public void updateTask(int uin, Task newTask) {
-        taskStorage.remove(uin);
+
         newTask.setUin(uin);
-        taskStorage.put(uin, newTask);
+        if (newTask.status == null) {
+            newTask.setStatus(taskStorage.get(uin).getStatus());
+        }
+        taskStorage.remove(uin);
+        if (!taskStartEndTimeValidator(newTask)) {
+            taskStorage.put(uin, newTask);
+            prioritizeTasks();
+        }
     }
 
     @Override
@@ -103,140 +127,244 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
         newSubtask.setStatus(status);
-        for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
-            for (Integer key : value.keySet()) {
-                if (subtaskUin == key) {
-                    newSubtask.setUin(getUin(value.get(key)));
-                    newSubtask.setEpicUin(value.get(key).getThisEpicUin());
-                    value.remove(key);
-                    value.put(key, newSubtask);
-                    break;
+
+        if (!taskStartEndTimeValidator(newSubtask)) {
+
+            Optional<Subtask> subtaskOptionalToChange = subtaskStorage.values().stream()
+                    .flatMap(subtasks -> subtasks.values().stream()
+                            .filter(subtask -> subtask.getUin() == subtaskUin))
+                    .findAny();
+            if (subtaskOptionalToChange.isPresent()) {
+                Subtask subtaskToChange = subtaskOptionalToChange.get();
+                newSubtask.setUin(subtaskToChange.getUin());
+                newSubtask.setEpicUin(subtaskToChange.getThisEpicUin());
+                if (newSubtask.startTime == null) {
+                    newSubtask.startTime = subtaskToChange.startTime;
+                }
+                if (newSubtask.getDuration() == null) {
+                    newSubtask.setDuration(subtaskToChange.getDuration());
+                }
+                if (subtaskStorage.values().stream()
+                        .peek(subtasks -> {
+                            subtasks.remove(subtaskUin, subtaskToChange);
+                            subtasks.put(subtaskUin, newSubtask);
+                        })
+                        .anyMatch(subtasks -> subtasks.containsValue(newSubtask))) {
+                    countEpicStatus(newSubtask.getThisEpicUin());
+                    updateEpicDuration(newSubtask.getThisEpicUin());
+                    setEpicStartTime(newSubtask.getThisEpicUin());
+                    updateEpicEndTime(newSubtask.getThisEpicUin());
+                    prioritizeTasks();
                 }
             }
         }
-        countEpicStatus(newSubtask.getThisEpicUin());
     }
 
     @Override
     public void deleteTask(int uin) {
         taskStorage.remove(uin);
         inMemoryHistoryManager.remove(uin);
+        prioritizeTasks();
     }
 
     @Override
     public void deleteEpic(int uin) {
-        ArrayList<Subtask> subtasksList = showEpicSubtasks(uin);
-        for (Subtask subtask : subtasksList) {
-            inMemoryHistoryManager.remove(subtask.getUin());
-        }
+        showEpicSubtasks(uin).stream()
+                .map(subtask -> subtask.getUin())
+                .forEach(subtaskUin -> inMemoryHistoryManager.remove(subtaskUin));
+
         epicStorage.remove(uin);
         inMemoryHistoryManager.remove(uin);
         subtaskStorage.remove(uin);
-
     }
 
     @Override
     public void deleteSubtask(int subtaskUin) {
         final int epicUin = getSubtask(subtaskUin).getThisEpicUin();
-        for (HashMap<Integer, Subtask> value : subtaskStorage.values()) {
-            for (Integer key : value.keySet()) {
-                if (subtaskUin == key) {
-                    value.remove(key);
-                    break;
-                }
-            }
-        }
+        subtaskStorage.get(epicUin).values().remove(getSubtask(subtaskUin));
+
         inMemoryHistoryManager.remove(subtaskUin);
         countEpicStatus(epicUin);
+        updateEpicDuration(epicUin);
+        updateEpicEndTime(epicUin);
+        prioritizeTasks();
     }
 
     @Override
     public ArrayList<Task> showAllTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
-        for (Integer i : taskStorage.keySet()) {
-            tasks.add(taskStorage.get(i));
-        }
-        return tasks;
+        return new ArrayList<>(taskStorage.values());
     }
 
     @Override
     public ArrayList<Epic> showAllEpics() {
-        ArrayList<Epic> epics = new ArrayList<>();
-        for (Integer i : epicStorage.keySet()) {
-            epics.add(epicStorage.get(i));
-        }
-        return epics;
+        return new ArrayList<>(epicStorage.values());
     }
 
     @Override
     public ArrayList<Subtask> showEpicSubtasks(int epicUin) {
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
-        ArrayList<Subtask> subtasksListToPrint = new ArrayList<>();
-        for (Subtask subtask : currentSubtaskList.values()) {
-            subtasksListToPrint.add(subtask);
-        }
-        return subtasksListToPrint;
+        List<Subtask> subtasksListToPrint = Stream.ofNullable(currentSubtaskList)
+                .flatMap(currentCollection -> currentCollection.values().stream())
+                .collect(Collectors.toList());
+        return (ArrayList<Subtask>) subtasksListToPrint;
     }
 
     @Override
     public ArrayList<Subtask> showAllSubtasks() {
-        ArrayList<Subtask> subtasks = new ArrayList<>();
-        for (Integer key : epicStorage.keySet()) {
-            ArrayList subtasksByEpicUin = showEpicSubtasks(key);
-            subtasks.addAll(subtasksByEpicUin);
-        }
-        return subtasks;
+        return (epicStorage.values().stream()
+                .map(epic -> epic.getUin())
+                .map(epicUin -> new ArrayList<>(showEpicSubtasks(epicUin)))
+                .flatMap(currentArray -> currentArray.stream())
+                .collect(Collectors.toCollection(ArrayList::new)));
     }
 
     @Override
     public void deleteAllTasks() {
         taskStorage.clear();
+        collectedSetOfPrioritizedTasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
         epicStorage.clear();
+        collectedSetOfPrioritizedTasks.clear();
     }
 
     @Override
     public void deleteAllSubtasksForOneEpic(int uin) {
-        HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
-        for (Subtask subtask : currentSubtaskList.values()) {
-            inMemoryHistoryManager.remove(subtask.getUin());
-        }
-        currentSubtaskList.clear();
+        subtaskStorage.get(uin).values().stream()
+                .forEach(subtask -> inMemoryHistoryManager.remove(subtask.getUin()));
+
+        subtaskStorage.get(uin).clear();
+        subtaskStorage.remove(uin);
+        countEpicStatus(uin);
+        updateEpicDuration(uin);
+        prioritizeTasks();
     }
 
     @Override
     public void deleteAllSubtasksForAllEpics() {
-        for (Integer epicUin : epicStorage.keySet()) {
-            deleteAllSubtasksForOneEpic(epicUin);
-        }
+        epicStorage.keySet().stream()
+                .forEach(key -> deleteAllSubtasksForOneEpic(key));
+        prioritizeTasks();
     }
 
     private void countEpicStatus(int uin) {
         Epic epicToCheck = epicStorage.get(uin);
-        int newStatus = 0;
-        int doneStatus = 0;
         HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(uin);
-        for (Subtask currentSubtask : currentSubtaskList.values()) {
-            switch (currentSubtask.status) {
-                case NEW:
-                    newStatus++;
-                    break;
-                case IN_PROGRESS:
-                    break;
-                case DONE:
-                    doneStatus++;
-                    break;
+        if (currentSubtaskList == null) {
+            epicToCheck.setStatus(Status.NEW);
+        } else {
+            int sumOfStatuses = currentSubtaskList.values().stream()
+                    .mapToInt(currentSubtask -> {
+                        int result = 0;
+                        switch (currentSubtask.status) {
+                            case NEW:
+                                result = +1;
+                                break;
+                            case IN_PROGRESS:
+                                result = 0;
+                                break;
+                            case DONE:
+                                result = -1;
+                                break;
+                        }
+                        return result;
+                    })
+                    .sum();
+            if (sumOfStatuses == currentSubtaskList.size()) {
+                epicToCheck.setStatus(Status.NEW);
+            } else if ((sumOfStatuses == currentSubtaskList.size() * (-1))) {
+                epicToCheck.setStatus(Status.DONE);
+            } else {
+                epicToCheck.setStatus(Status.IN_PROGRESS);
             }
         }
-        if ((newStatus == currentSubtaskList.size())) {
-            epicToCheck.setStatus(Status.NEW);
-        } else if ((doneStatus == currentSubtaskList.size())) {
-            epicToCheck.setStatus(Status.DONE);
+    }
+
+    public void setEpicStartTime(int epicUin) {
+        Epic currentEpic = epicStorage.get(epicUin);
+        List<Subtask> listOfSubtasks = showEpicSubtasks(epicUin);
+        boolean isEmpty = listOfSubtasks.stream()
+                .allMatch(subtask -> subtask == null);
+        if (isEmpty) currentEpic.startTime = null;
+        else {
+            currentEpic.startTime = listOfSubtasks.stream()
+                    .map(subtask -> subtask.startTime)
+                    .filter(startTime -> startTime != null)
+                    .min(LocalDateTime::compareTo).orElse(null);
+        }
+    }
+
+    public void updateEpicEndTime(int epicUin) {
+        Epic currentEpic = epicStorage.get(epicUin);
+        List<Subtask> listOfSubtasks = showEpicSubtasks(epicUin);
+
+        currentEpic.setEndTime((listOfSubtasks.stream()
+                .filter(subtask -> subtask != null && subtask.getDuration() != null &&
+                        subtask.startTime != null)
+                .map(subtask -> subtask.startTime.plusMinutes(!subtask.getDuration().equals(null) ?
+                        subtask.getDuration().toMinutes() : 0L))
+                .max(LocalDateTime::compareTo)).orElse(null));
+    }
+
+    public void updateEpicDuration(int epicUin) {
+        Epic currentEpic = epicStorage.get(epicUin);
+        currentEpic.setDuration(Duration.ofMinutes(durationInMinutes(epicUin)));
+    }
+
+    private long durationInMinutes(int epicUin) {
+        List<Subtask> listOfSubtasks = showEpicSubtasks(epicUin);
+        if (listOfSubtasks == null || (listOfSubtasks.stream()
+                .allMatch(subtask -> subtask == null))) {
+            return 0L;
         } else {
-            epicToCheck.setStatus(Status.IN_PROGRESS);
+            return listOfSubtasks.stream().map(subtask -> subtask.getDuration())
+                    .filter(gottenDuration -> gottenDuration != null)
+                    .mapToLong(Duration::toMinutes)
+                    .sum();
+        }
+    }
+
+    @Override
+    public void prioritizeTasks() {
+
+        List<Task> listOfTasks =
+                taskStorage.values().stream()
+                        .filter(task -> task.startTime != null)
+                        .collect(Collectors.toList());
+
+        List<Task> listOfSubtasks =
+                subtaskStorage.values().stream()
+                        .flatMap(subtasks -> subtasks.values().stream())
+                        .filter(subtask -> subtask.startTime != null)
+                        .collect(Collectors.toList());
+
+        collectedSetOfPrioritizedTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
+        collectedSetOfPrioritizedTasks.addAll(listOfTasks);
+        collectedSetOfPrioritizedTasks.addAll(listOfSubtasks);
+
+
+    }
+
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        return collectedSetOfPrioritizedTasks;
+    }
+
+    @Override
+    public boolean taskStartEndTimeValidator(Task newTask) {
+        if (newTask.startTime == null) return false;
+        else {
+            LocalDateTime newTaskStartTime = newTask.startTime;
+            LocalDateTime newTaskEndTime = newTask.getEndTime();
+            return getPrioritizedTasks().stream()
+                    .anyMatch(task ->
+                            (newTaskEndTime.isBefore(task.getEndTime()) & newTaskEndTime.isAfter(task.startTime) ||
+                                    newTaskStartTime.isAfter(task.startTime)
+                                            & newTaskStartTime.isBefore(task.getEndTime()) ||
+                                    newTaskStartTime.isBefore(task.startTime)
+                                            & newTaskEndTime.isAfter(task.getEndTime())));
         }
     }
 

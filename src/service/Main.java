@@ -6,6 +6,10 @@ import model.Status;
 import model.Subtask;
 import model.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -162,8 +166,9 @@ public class Main {
         taskManager.deleteEpic(taskManager.getUin(epicTwo));
         System.out.println("----");
         taskManager.deleteAllTasks();
-        taskManager.deleteAllEpics();
         taskManager.deleteAllSubtasksForAllEpics();
+        taskManager.deleteAllEpics();
+
 
         System.out.println("вывод всех тасков после очистки коллекции: ");
         taskManager.showAllTasks();
@@ -181,6 +186,7 @@ public class Main {
         System.out.println();
         System.out.println("ПРОВЕРКА МЕТОДОМ printAllTasks");
         printAllTasks(taskManager);
+
 
     }
 
