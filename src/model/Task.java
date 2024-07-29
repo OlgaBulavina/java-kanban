@@ -2,7 +2,6 @@ package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -74,7 +73,7 @@ public class Task {
     public String toString() {
         return (this.uin + "," + this.getTaskType() + "," + this.getName() + "," + this.description + "," +
                 this.getStatus()) + (this.startTime != null ? "," +
-                this.startTime : "")  +
+                this.startTime : "") +
                 (this.getDuration() != null ? "," + this.getDuration().toMinutes() : "") +
                 (this.getClass() == Subtask.class ? "," + ((Subtask) this).getThisEpicUin() : "");
     }

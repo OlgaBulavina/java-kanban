@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SubtaskTest {
     TaskManager taskManager;
@@ -30,7 +29,7 @@ class SubtaskTest {
         int epicId = epic.getUin();
 
         Subtask subtask = new Subtask(Duration.ofMinutes(30),
-                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         int subtaskId = subtask.getUin();
@@ -54,7 +53,7 @@ class SubtaskTest {
         int epicId = epic.getUin();
 
         Subtask subtask = new Subtask(Duration.ofMinutes(30),
-                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         taskManager.getSubtask(subtask.getUin());
@@ -70,7 +69,7 @@ class SubtaskTest {
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
         Subtask subtask = new Subtask(Duration.ofMinutes(30),
-                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
         int subtaskId = subtask.getUin();
@@ -89,7 +88,7 @@ class SubtaskTest {
         Subtask subtask = new Subtask("Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         taskManager.createSubtask(epicId, subtask);
-        Duration defaultDuration= Duration.of(0L, ChronoUnit.MINUTES);
+        Duration defaultDuration = Duration.of(0L, ChronoUnit.MINUTES);
 
         assertNull(subtask.startTime);
         assertEquals(subtask.getDuration(), defaultDuration);

@@ -292,31 +292,31 @@ class InMemoryTaskManagerTest {
         Task taskTwo = new Task(Duration.ofMinutes(10), LocalDateTime.now(),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
 
-        assertFalse(taskManager.taskStartEndTimeValidator(taskTwo), "case seSE");
+        assertFalse(taskManager.taskStartEndTimeValidator(taskTwo, 0), "case seSE");
 
         Task taskThree = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(50, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskThree), "case sSeE");
+        assertTrue(taskManager.taskStartEndTimeValidator(taskThree, 0), "case sSeE");
 
         Task taskFour = new Task(Duration.ofMinutes(10), LocalDateTime.now().plus(70, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskFour), "case SseE");
+        assertTrue(taskManager.taskStartEndTimeValidator(taskFour, 0), "case SseE");
 
         Task taskFive = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(80, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskFive), "caseSsEe");
+        assertTrue(taskManager.taskStartEndTimeValidator(taskFive, 0), "caseSsEe");
 
         Task taskSix = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(300, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertFalse(taskManager.taskStartEndTimeValidator(taskSix), "case SEse");
+        assertFalse(taskManager.taskStartEndTimeValidator(taskSix, 0), "case SEse");
 
         Task taskSeven = new Task(Duration.ofMinutes(120), LocalDateTime.now().plus(50, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskSeven), "case sSEe");
+        assertTrue(taskManager.taskStartEndTimeValidator(taskSeven, 0), "case sSEe");
     }
 }

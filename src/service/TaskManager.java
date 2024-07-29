@@ -62,9 +62,11 @@ public interface TaskManager {
 
     Collection<Task> getTasksHistoryFromInMemoryHM();
 
-    void prioritizeTasks();
+    void prioritizeTasks(Task task, String typeOfChange);
+
+    void prioritizeTasks(List<Integer> severalSubtasksUins);
 
     Set<Task> getPrioritizedTasks();
 
-    boolean taskStartEndTimeValidator(Task task);
+    boolean taskStartEndTimeValidator(Task task, int oldTaskUin);
 }

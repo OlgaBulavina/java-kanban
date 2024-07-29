@@ -8,7 +8,6 @@ import model.Task;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +19,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private Map<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
 
-    private TreeSet<Task> collectedSetOfPrioritizedTasks = new TreeSet<>();
+    private TreeSet<Task> collectedSetOfPrioritizedTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
     private HistoryManager inMemoryHistoryManager;
 
     public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
@@ -41,9 +40,9 @@ public class InMemoryTaskManager implements TaskManager {
         setUin(task);
         task.setStatus(Status.NEW);
 
-        if (!taskStartEndTimeValidator(task)) {
+        if (!taskStartEndTimeValidator(task, 0)) {
             taskStorage.put(getUin(task), task);
-            prioritizeTasks();
+            prioritizeTasks(task, "add_new");
         }
     }
 
@@ -66,14 +65,14 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask.getDuration() == null) {
             subtask.setDuration(Duration.ofMinutes(0L));
         }
-        if (!taskStartEndTimeValidator(subtask)) {
+        if (!taskStartEndTimeValidator(subtask, 0)) {
             HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
             currentSubtaskList.put(getUin(subtask), subtask);
             updateEpicDuration(epicUin);
             countEpicStatus(epicUin);
             setEpicStartTime(epicUin);
             updateEpicEndTime(epicUin);
-            prioritizeTasks();
+            prioritizeTasks(subtask, "add_new");
         }
     }
 
@@ -110,9 +109,9 @@ public class InMemoryTaskManager implements TaskManager {
             newTask.setStatus(taskStorage.get(uin).getStatus());
         }
         taskStorage.remove(uin);
-        if (!taskStartEndTimeValidator(newTask)) {
+        if (!taskStartEndTimeValidator(newTask, uin)) {
             taskStorage.put(uin, newTask);
-            prioritizeTasks();
+            prioritizeTasks(newTask, "change");
         }
     }
 
@@ -128,8 +127,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
         newSubtask.setStatus(status);
 
-        if (!taskStartEndTimeValidator(newSubtask)) {
-
+        if (!taskStartEndTimeValidator(newSubtask, subtaskUin)) {
+            prioritizeTasks(getSubtask(subtaskUin), "change");
             Optional<Subtask> subtaskOptionalToChange = subtaskStorage.values().stream()
                     .flatMap(subtasks -> subtasks.values().stream()
                             .filter(subtask -> subtask.getUin() == subtaskUin))
@@ -154,7 +153,6 @@ public class InMemoryTaskManager implements TaskManager {
                     updateEpicDuration(newSubtask.getThisEpicUin());
                     setEpicStartTime(newSubtask.getThisEpicUin());
                     updateEpicEndTime(newSubtask.getThisEpicUin());
-                    prioritizeTasks();
                 }
             }
         }
@@ -162,16 +160,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int uin) {
+        prioritizeTasks(getTask(uin), "delete");
         taskStorage.remove(uin);
         inMemoryHistoryManager.remove(uin);
-        prioritizeTasks();
     }
 
     @Override
     public void deleteEpic(int uin) {
-        showEpicSubtasks(uin).stream()
-                .map(subtask -> subtask.getUin())
-                .forEach(subtaskUin -> inMemoryHistoryManager.remove(subtaskUin));
+
+        deleteAllSubtasksForOneEpic(uin);
 
         epicStorage.remove(uin);
         inMemoryHistoryManager.remove(uin);
@@ -180,6 +177,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtask(int subtaskUin) {
+
+        prioritizeTasks(getSubtask(subtaskUin), "delete");
+
         final int epicUin = getSubtask(subtaskUin).getThisEpicUin();
         subtaskStorage.get(epicUin).values().remove(getSubtask(subtaskUin));
 
@@ -187,7 +187,6 @@ public class InMemoryTaskManager implements TaskManager {
         countEpicStatus(epicUin);
         updateEpicDuration(epicUin);
         updateEpicEndTime(epicUin);
-        prioritizeTasks();
     }
 
     @Override
@@ -226,12 +225,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllEpics() {
+        /*List<Integer> epicsUins = epicStorage.keySet().stream()
+                .collect(Collectors.toList());*/
+        deleteAllSubtasksForAllEpics();
         epicStorage.clear();
-        collectedSetOfPrioritizedTasks.clear();
     }
 
     @Override
     public void deleteAllSubtasksForOneEpic(int uin) {
+        List<Integer> subtasksUins = subtaskStorage.get(uin).keySet().stream()
+                .collect(Collectors.toList());
+        prioritizeTasks(subtasksUins);
         subtaskStorage.get(uin).values().stream()
                 .forEach(subtask -> inMemoryHistoryManager.remove(subtask.getUin()));
 
@@ -239,14 +243,16 @@ public class InMemoryTaskManager implements TaskManager {
         subtaskStorage.remove(uin);
         countEpicStatus(uin);
         updateEpicDuration(uin);
-        prioritizeTasks();
     }
 
     @Override
     public void deleteAllSubtasksForAllEpics() {
+        List<Integer> subtasksUins = subtaskStorage.values().stream()
+                .flatMap(subtasks -> subtasks.keySet().stream())
+                .collect(Collectors.toList());
+
         epicStorage.keySet().stream()
                 .forEach(key -> deleteAllSubtasksForOneEpic(key));
-        prioritizeTasks();
     }
 
     private void countEpicStatus(int uin) {
@@ -327,24 +333,38 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void prioritizeTasks() {
+    public void prioritizeTasks(Task task, String typeOfChange) {
+        if (task.startTime != null) {
+            switch (typeOfChange) {
+                case "add_new" -> {
+                    collectedSetOfPrioritizedTasks.add(task);
+                }
+                case "change" -> {
+                    Task taskToChange = collectedSetOfPrioritizedTasks.stream()
+                            .filter(currentTask -> currentTask.getUin() == task.getUin())
+                            .findAny().get();
+                    collectedSetOfPrioritizedTasks.remove(taskToChange);
+                    collectedSetOfPrioritizedTasks.add(task);
+                }
+                case "delete" -> {
+                    collectedSetOfPrioritizedTasks.remove(task);
+                }
+            }
+        }
+    }
 
-        List<Task> listOfTasks =
-                taskStorage.values().stream()
-                        .filter(task -> task.startTime != null)
-                        .collect(Collectors.toList());
+    @Override
+    public void prioritizeTasks(List<Integer> severalSubtasksUins) {
 
-        List<Task> listOfSubtasks =
-                subtaskStorage.values().stream()
-                        .flatMap(subtasks -> subtasks.values().stream())
-                        .filter(subtask -> subtask.startTime != null)
-                        .collect(Collectors.toList());
-
-        collectedSetOfPrioritizedTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
-        collectedSetOfPrioritizedTasks.addAll(listOfTasks);
-        collectedSetOfPrioritizedTasks.addAll(listOfSubtasks);
-
-
+        severalSubtasksUins.stream()
+                .forEach(uin -> {
+                    Optional<Task> subtaskToDelete = collectedSetOfPrioritizedTasks.stream()
+                            .filter(thisSubtask -> (thisSubtask.getUin() == uin))
+                            .findAny();
+                    if (subtaskToDelete.isPresent()) {
+                        collectedSetOfPrioritizedTasks.remove(subtaskToDelete.get());
+                    }
+                });
     }
 
     @Override
@@ -353,16 +373,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean taskStartEndTimeValidator(Task newTask) {
+    public boolean taskStartEndTimeValidator(Task newTask, int oldTaskUin) {
         if (newTask.startTime == null) return false;
         else {
             LocalDateTime newTaskStartTime = newTask.startTime;
             LocalDateTime newTaskEndTime = newTask.getEndTime();
             return getPrioritizedTasks().stream()
+                    .filter(task -> task.getUin() != oldTaskUin)
                     .anyMatch(task ->
-                            (newTaskEndTime.isBefore(task.getEndTime()) & newTaskEndTime.isAfter(task.startTime) ||
+                            ((newTaskEndTime.isBefore(task.getEndTime()) || newTaskEndTime.equals(task.getEndTime())) &
+                                    newTaskEndTime.isAfter(task.startTime) ||
                                     newTaskStartTime.isAfter(task.startTime)
-                                            & newTaskStartTime.isBefore(task.getEndTime()) ||
+                                            & (newTaskStartTime.isBefore(task.getEndTime()) ||
+                                            newTaskStartTime.equals(task.getEndTime())) ||
                                     newTaskStartTime.isBefore(task.startTime)
                                             & newTaskEndTime.isAfter(task.getEndTime())));
         }

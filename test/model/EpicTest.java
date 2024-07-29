@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -102,13 +101,53 @@ class EpicTest {
 
         assertEquals(totalSubtasksDuration, epicOne.getDuration());
     }
-    @Test
-    void checkEpicStartDTAndEndDTAndDurationIfNoSubtasks(){
-        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
 
-        Duration defaultDuration= Duration.of(0L, ChronoUnit.MINUTES);
+    @Test
+    void checkEpicStartDTAndEndDTAndDurationIfNoSubtasks() {
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+        taskManager.createEpic(epicOne);
+
+        Duration defaultDuration = Duration.of(0L, ChronoUnit.MINUTES);
         assertNull(epicOne.startTime);
         assertEquals(epicOne.getDuration(), defaultDuration);
         assertNull(epicOne.getEndTime());
+    }
+
+    @Test
+    void checkEpicStatusChanges() {
+        Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
+
+        Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
+                LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
+                "Test addNewSubtaskOne description", Status.NEW);
+        Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
+                LocalDateTime.now().plus(30, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
+                "Test addNewSubtaskTwo description", Status.NEW);
+        Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
+                LocalDateTime.now().plus(120, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
+                "Test addNewSubtaskThree description", Status.NEW);
+
+        taskManager.createEpic(epicOne);
+
+        taskManager.createSubtask(epicOne.getUin(), subtaskOne);
+        taskManager.createSubtask(epicOne.getUin(), subtaskTwo);
+        taskManager.createSubtask(epicOne.getUin(), subtaskThree);
+
+        assertEquals(epicOne.getStatus(), Status.NEW);
+
+        taskManager.updateSubtask(subtaskOne.getUin(), subtaskOne, Status.DONE);
+
+        assertEquals(epicOne.getStatus(), Status.IN_PROGRESS);
+
+        taskManager.updateSubtask(subtaskTwo.getUin(), subtaskTwo, Status.DONE);
+        taskManager.updateSubtask(subtaskThree.getUin(), subtaskThree, Status.DONE);
+
+        assertEquals(epicOne.getStatus(), Status.DONE);
+
+        taskManager.updateSubtask(subtaskOne.getUin(), subtaskOne, Status.IN_PROGRESS);
+        taskManager.updateSubtask(subtaskTwo.getUin(), subtaskTwo, Status.IN_PROGRESS);
+        taskManager.updateSubtask(subtaskThree.getUin(), subtaskThree, Status.IN_PROGRESS);
+
+        assertEquals(epicOne.getStatus(), Status.IN_PROGRESS);
     }
 }
