@@ -90,7 +90,7 @@ class SubtaskTest {
         taskManager.createSubtask(epicId, subtask);
         Duration defaultDuration = Duration.of(0L, ChronoUnit.MINUTES);
 
-        assertNull(subtask.startTime);
+        assertNull(subtask.getStartTime());
         assertEquals(subtask.getDuration(), defaultDuration);
         assertNull(subtask.getEndTime());
     }

@@ -179,7 +179,7 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
     @Test
     void gettingOfPrioritizedTasksList() {
 
-        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
+        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.getStartTime()));
 
         setOfTasks.add(taskOne);
         setOfTasks.add(taskTwo);

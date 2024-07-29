@@ -26,7 +26,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         try {
                             fileWriter.write(task.toString() + "\n");
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new ManagerSaveException("\"Произошла ошибка с записью в файл\\n\"");
                         }
                     });
             super.showAllEpics().stream()
@@ -34,7 +34,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         try {
                             fileWriter.write(epic.toString() + "\n");
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new ManagerSaveException("\"Произошла ошибка с записью в файл\\n\"");
                         }
                     });
             super.showAllSubtasks().stream()
@@ -42,10 +42,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         try {
                             fileWriter.write(subtask.toString() + "\n");
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new ManagerSaveException("\"Произошла ошибка с записью в файл\\n\"");
                         }
                     });
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException e) {
             throw new ManagerSaveException("\"Произошла ошибка с записью в файл\\n\"");
         }
     }

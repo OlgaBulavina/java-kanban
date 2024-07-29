@@ -88,7 +88,7 @@ class EpicTest {
         taskManager.createSubtask(epicOne.getUin(), subtaskTwo);
         taskManager.createSubtask(epicOne.getUin(), subtaskThree);
 
-        assertEquals(subtaskOne.startTime, epicOne.startTime);
+        assertEquals(subtaskOne.getStartTime(), epicOne.getStartTime());
 
         LocalDateTime maxLDT = List.of(subtaskOne.getEndTime(),
                         subtaskTwo.getEndTime(), subtaskThree.getEndTime()).stream()
@@ -108,7 +108,7 @@ class EpicTest {
         taskManager.createEpic(epicOne);
 
         Duration defaultDuration = Duration.of(0L, ChronoUnit.MINUTES);
-        assertNull(epicOne.startTime);
+        assertNull(epicOne.getStartTime());
         assertEquals(epicOne.getDuration(), defaultDuration);
         assertNull(epicOne.getEndTime());
     }

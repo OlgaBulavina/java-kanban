@@ -19,7 +19,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private Map<Integer, HashMap<Integer, Subtask>> subtaskStorage = new HashMap<>();
 
-    private TreeSet<Task> collectedSetOfPrioritizedTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
+    private Set<Task> collectedSetOfPrioritizedTasks = new TreeSet<>(Comparator.comparing(task ->
+            task.getStartTime()));
     private HistoryManager inMemoryHistoryManager;
 
     public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
@@ -66,7 +67,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtask.setDuration(Duration.ofMinutes(0L));
         }
         if (!taskStartEndTimeValidator(subtask, 0)) {
-            HashMap<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
+            Map<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
             currentSubtaskList.put(getUin(subtask), subtask);
             updateEpicDuration(epicUin);
             countEpicStatus(epicUin);
@@ -137,8 +138,8 @@ public class InMemoryTaskManager implements TaskManager {
                 Subtask subtaskToChange = subtaskOptionalToChange.get();
                 newSubtask.setUin(subtaskToChange.getUin());
                 newSubtask.setEpicUin(subtaskToChange.getThisEpicUin());
-                if (newSubtask.startTime == null) {
-                    newSubtask.startTime = subtaskToChange.startTime;
+                if (newSubtask.getStartTime() == null) {
+                    newSubtask.setStartTime(subtaskToChange.getStartTime());
                 }
                 if (newSubtask.getDuration() == null) {
                     newSubtask.setDuration(subtaskToChange.getDuration());
@@ -293,12 +294,12 @@ public class InMemoryTaskManager implements TaskManager {
         List<Subtask> listOfSubtasks = showEpicSubtasks(epicUin);
         boolean isEmpty = listOfSubtasks.stream()
                 .allMatch(subtask -> subtask == null);
-        if (isEmpty) currentEpic.startTime = null;
+        if (isEmpty) currentEpic.setStartTime(null);
         else {
-            currentEpic.startTime = listOfSubtasks.stream()
-                    .map(subtask -> subtask.startTime)
+            currentEpic.setStartTime(listOfSubtasks.stream()
+                    .map(subtask -> subtask.getStartTime())
                     .filter(startTime -> startTime != null)
-                    .min(LocalDateTime::compareTo).orElse(null);
+                    .min(LocalDateTime::compareTo).orElse(null));
         }
     }
 
@@ -308,8 +309,8 @@ public class InMemoryTaskManager implements TaskManager {
 
         currentEpic.setEndTime((listOfSubtasks.stream()
                 .filter(subtask -> subtask != null && subtask.getDuration() != null &&
-                        subtask.startTime != null)
-                .map(subtask -> subtask.startTime.plusMinutes(!subtask.getDuration().equals(null) ?
+                        subtask.getStartTime() != null)
+                .map(subtask -> subtask.getStartTime().plusMinutes(!subtask.getDuration().equals(null) ?
                         subtask.getDuration().toMinutes() : 0L))
                 .max(LocalDateTime::compareTo)).orElse(null));
     }
@@ -334,7 +335,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void prioritizeTasks(Task task, String typeOfChange) {
-        if (task.startTime != null) {
+        if (task.getStartTime() != null) {
             switch (typeOfChange) {
                 case "add_new" -> {
                     collectedSetOfPrioritizedTasks.add(task);
@@ -374,19 +375,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean taskStartEndTimeValidator(Task newTask, int oldTaskUin) {
-        if (newTask.startTime == null) return false;
+        if (newTask.getStartTime() == null) return false;
         else {
-            LocalDateTime newTaskStartTime = newTask.startTime;
+            LocalDateTime newTaskStartTime = newTask.getStartTime();
             LocalDateTime newTaskEndTime = newTask.getEndTime();
             return getPrioritizedTasks().stream()
                     .filter(task -> task.getUin() != oldTaskUin)
                     .anyMatch(task ->
                             ((newTaskEndTime.isBefore(task.getEndTime()) || newTaskEndTime.equals(task.getEndTime())) &
-                                    newTaskEndTime.isAfter(task.startTime) ||
-                                    newTaskStartTime.isAfter(task.startTime)
+                                    newTaskEndTime.isAfter(task.getStartTime()) ||
+                                    newTaskStartTime.isAfter(task.getStartTime())
                                             & (newTaskStartTime.isBefore(task.getEndTime()) ||
                                             newTaskStartTime.equals(task.getEndTime())) ||
-                                    newTaskStartTime.isBefore(task.startTime)
+                                    newTaskStartTime.isBefore(task.getStartTime())
                                             & newTaskEndTime.isAfter(task.getEndTime())));
         }
     }

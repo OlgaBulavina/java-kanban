@@ -9,7 +9,7 @@ public class Epic extends Task {
         this.endTime = endTime;
     }
 
-    LocalDateTime endTime;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);

@@ -29,21 +29,21 @@ class InMemoryTaskManagerTest {
     void checkAddingOfDifferentTypeTasks() {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(120, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(120, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(80, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(135, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(135, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         taskManager.createTask(taskOne);
@@ -86,21 +86,21 @@ class InMemoryTaskManagerTest {
     void checkTasksUpdate() {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(120, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(120, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(80, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(135, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(135, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         taskManager.createTask(taskOne);
@@ -130,21 +130,21 @@ class InMemoryTaskManagerTest {
     void checkTasksDelete() {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(120, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(120, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(80, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(135, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(135, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         taskManager.createTask(taskOne);
@@ -199,21 +199,21 @@ class InMemoryTaskManagerTest {
     void gettingOfPrioritizedTasksList() {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(120, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(120, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(80, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(135, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(135, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         taskManager.createTask(taskOne);
@@ -227,7 +227,7 @@ class InMemoryTaskManagerTest {
         taskManager.createSubtask(epicOne.getUin(), subtaskTwo);
         taskManager.createSubtask(epicTwo.getUin(), subtaskThree);
 
-        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
+        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.getStartTime()));
 
         setOfTasks.add(taskOne);
         setOfTasks.add(taskTwo);
@@ -243,9 +243,9 @@ class InMemoryTaskManagerTest {
     void gettingOfPrioritizedTasksListIfStartTimeIsNull() {
         Task taskOne = new Task("Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
@@ -256,7 +256,7 @@ class InMemoryTaskManagerTest {
                 LocalDateTime.now().plus(80, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(135, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(135, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         taskManager.createTask(taskOne);
@@ -270,7 +270,7 @@ class InMemoryTaskManagerTest {
         taskManager.createSubtask(epicOne.getUin(), subtaskTwo);
         taskManager.createSubtask(epicTwo.getUin(), subtaskThree);
 
-        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.startTime));
+        TreeSet<Task> setOfTasks = new TreeSet<>(Comparator.comparing(task -> task.getStartTime()));
 
         setOfTasks.add(taskTwo);
         setOfTasks.add(taskThree);

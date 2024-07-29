@@ -6,7 +6,8 @@ import java.util.Objects;
 
 public class Task {
     private Duration duration;
-    public LocalDateTime startTime;
+
+    private LocalDateTime startTime;
     private String name;
     private String description;
     private int uin;
@@ -101,4 +102,13 @@ public class Task {
     public void setDuration(Duration duration) {
         this.duration = duration;
     }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
 }
