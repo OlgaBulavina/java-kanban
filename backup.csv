@@ -1,9 +1,9 @@
-UIN,TYPE,NAME,DESCRIPTION,STATUS,EPIC_NUMBER(FOR SUBTASK)
-1,TASK,Test addNewTaskOne,Test addNewTaskOne description,NEW
-2,TASK,Test addNewTaskTwo,Test addNewTaskTwo description,NEW
-3,TASK,Test addNewTaskThree,Test addNewTaskThree description,NEW
-4,EPIC,Test addNewEpicOne,Test addNewEpicOne description,NEW
-5,EPIC,Test addNewEpicTwo,Test addNewEpicTwo description,NEW
-6,SUBTASK,Test addNewSubtaskOne,Test addNewSubtaskOne description,NEW,4
-7,SUBTASK,Test addNewSubtaskTwo,Test addNewSubtaskTwo description,NEW,4
-8,SUBTASK,Test addNewSubtaskThree,Test addNewSubtaskThree description,NEW,5
+UIN,TYPE,NAME,DESCRIPTION,STATUS,START_TIME,DURATION,EPIC_NUMBER(FOR SUBTASK)
+1,TASK,Test addNewTaskOne,Test addNewTaskOne description,NEW,2024-01-02T12:30,10
+2,TASK,Test addNewTaskTwo,Test addNewTaskTwo description,NEW,2024-01-02T12:50,20
+3,TASK,Test addNewTaskThree,Test addNewTaskThree description,NEW,2024-01-02T13:15,30
+4,EPIC,Test addNewEpicOne,Test addNewEpicOne description,NEW,2024-01-02T13:50,40
+5,EPIC,Test addNewEpicTwo,Test addNewEpicTwo description,NEW,2024-01-02T14:45,25
+6,SUBTASK,Test addNewSubtaskOne,Test addNewSubtaskOne description,NEW,2024-01-02T14:30,10,4
+7,SUBTASK,Test addNewSubtaskTwo,Test addNewSubtaskTwo description,NEW,2024-01-02T13:50,30,4
+8,SUBTASK,Test addNewSubtaskThree,Test addNewSubtaskThree description,NEW,2024-01-02T14:45,25,5

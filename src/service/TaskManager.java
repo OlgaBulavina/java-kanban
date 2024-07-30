@@ -5,10 +5,7 @@ import model.Status;
 import model.Subtask;
 import model.Task;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public interface TaskManager {
     int getUin(Task task);
@@ -64,4 +61,12 @@ public interface TaskManager {
     HistoryManager getInMemoryHistoryManager();
 
     Collection<Task> getTasksHistoryFromInMemoryHM();
+
+    void prioritizeTasks(Task task, String typeOfChange);
+
+    void prioritizeTasks(List<Integer> severalSubtasksUins);
+
+    Set<Task> getPrioritizedTasks();
+
+    boolean taskStartEndTimeValidator(Task task, int oldTaskUin);
 }
