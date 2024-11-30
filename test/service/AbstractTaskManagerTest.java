@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -34,7 +35,7 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
     protected abstract T makeTaskManager();
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws IOException, IntersectionException {
 
         this.taskManager = makeTaskManager();
 
@@ -105,13 +106,16 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         final Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(8, history.size(), "должны быть добавлены 8 Задач в историю");
-        assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");
-        assertEquals(taskManager.getEpic(epicOneId), savedEpicOne, "вызываемая и сохраненная Задачи должны быть равны");
-        assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne, "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getTask(taskOneId), savedTaskOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getEpic(epicOneId), savedEpicOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
     }
 
     @Test
-    void checkDifferentTypesOfTasksUpdate() {
+    void checkDifferentTypesOfTasksUpdate() throws IntersectionException {
 
         int taskOneId = taskOne.getUin();
         final Task savedTaskOne = taskManager.getTask(taskOneId);
@@ -143,7 +147,8 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         taskManager.updateSubtask(subtaskOneId, subtaskOneUpdated, Status.IN_PROGRESS);
 
         assertEquals(subtaskOneId, subtaskOneUpdated.getUin(), "айди должен остаться тот же");
-        assertNotEquals(savedSubtaskOne, taskManager.getSubtask(subtaskOneId), "данные задачи должны поменяться");
+        assertNotEquals(savedSubtaskOne, taskManager.getSubtask(subtaskOneId),
+                "данные задачи должны поменяться");
     }
 
     @Test
@@ -163,9 +168,12 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         taskManager.deleteSubtask(subtaskOneId);
         taskManager.deleteEpic(epicOneId);
 
-        assertNotEquals(savedAllTasksLength, taskManager.showAllTasks().size(), "длина списка должна отличаться на 1");
-        assertNotEquals(savedAllSubtasksLength, taskManager.showAllSubtasks().size(), "длина списка должна отличаться на 1");
-        assertNotEquals(savedAllEpicsLength, taskManager.showAllEpics().size(), "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllTasksLength, taskManager.showAllTasks().size(),
+                "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllSubtasksLength, taskManager.showAllSubtasks().size(),
+                "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllEpicsLength, taskManager.showAllEpics().size(),
+                "длина списка должна отличаться на 1");
 
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
@@ -192,7 +200,7 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void checkTimeCrossingOfNewTaskWithOldOnes() {
+    void checkTimeCrossingOfNewTaskWithOldOnes() throws IntersectionException {
 
         // s, e - startTime, endTime of new Task; S, E - startTime, EndTime of Task(s) in memory
 
@@ -204,17 +212,20 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         Task crossedTaskOne = new Task(Duration.ofMinutes(30), countStart.minus(20, ChronoUnit.MINUTES),
                 "Test crossedTaskOne", "Test crossedTaskOne description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(crossedTaskOne, 0), "case sSeE");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(crossedTaskOne, 0), "case sSeE");
 
         Task crossedTaskTwo = new Task(Duration.ofMinutes(10), countStart.plus(50, ChronoUnit.MINUTES),
                 "Test crossedTaskTwo", "Test crossedTaskTwo description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(crossedTaskTwo, 0), "case SseE");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(crossedTaskTwo, 0), "case SseE");
 
         Task crossedTaskThree = new Task(Duration.ofMinutes(80), countStart.plus(140, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(crossedTaskThree, 0), "caseSsEe");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(crossedTaskThree, 0), "caseSsEe");
 
         Task notCrossedTaskTwo = new Task(Duration.ofMinutes(60), countStart.plus(300, ChronoUnit.MINUTES),
                 "Test notCrossedTaskTwo", "Test notCrossedTaskTwo description");
@@ -224,7 +235,8 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         Task crossedTaskFour = new Task(Duration.ofMinutes(200), countStart.minus(20, ChronoUnit.MINUTES),
                 "Test crossedTaskFour", "Test crossedTaskFour description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(crossedTaskFour, 0), "case sSEe");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(crossedTaskFour, 0), "case sSEe");
     }
 
     @Test

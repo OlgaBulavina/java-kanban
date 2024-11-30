@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -26,7 +27,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkAddingOfDifferentTypeTasks() {
+    void checkAddingOfDifferentTypeTasks() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
@@ -77,13 +78,16 @@ class InMemoryTaskManagerTest {
         final Collection<Task> history = taskManager.getTasksHistoryFromInMemoryHM();
 
         assertEquals(8, history.size(), "должны быть добавлены 8 Задач в историю");
-        assertEquals(taskManager.getTask(taskOneId), savedTaskOne, "вызываемая и сохраненная Задачи должны быть равны");
-        assertEquals(taskManager.getEpic(epicOneId), savedEpicOne, "вызываемая и сохраненная Задачи должны быть равны");
-        assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne, "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getTask(taskOneId), savedTaskOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getEpic(epicOneId), savedEpicOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
+        assertEquals(taskManager.getSubtask(subtaskOneId), savedSubtaskOne,
+                "вызываемая и сохраненная Задачи должны быть равны");
     }
 
     @Test
-    void checkTasksUpdate() {
+    void checkTasksUpdate() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
@@ -122,12 +126,14 @@ class InMemoryTaskManagerTest {
         final Subtask savedSubtaskOne = taskManager.getSubtask(subtaskOneId);
         taskManager.updateSubtask(subtaskOneId, subtaskTwo, Status.IN_PROGRESS);
         assertEquals(subtaskOneId, subtaskTwo.getUin(), "айди должен остаться тот же");
-        assertNotEquals(savedSubtaskOne, taskManager.getSubtask(subtaskOneId), "данные задачи должны поменяться");
-        assertNotEquals(savedEpicOne.getStatus(), taskManager.getEpic(epicOneId).getStatus(), "статус эпика должен поменяться");
+        assertNotEquals(savedSubtaskOne, taskManager.getSubtask(subtaskOneId),
+                "данные задачи должны поменяться");
+        assertNotEquals(savedEpicOne.getStatus(), taskManager.getEpic(epicOneId).getStatus(),
+                "статус эпика должен поменяться");
     }
 
     @Test
-    void checkTasksDelete() {
+    void checkTasksDelete() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
@@ -182,9 +188,12 @@ class InMemoryTaskManagerTest {
         taskManager.deleteSubtask(subtaskOneId);
         taskManager.deleteEpic(epicOneId);
 
-        assertNotEquals(savedAllTasksLength, taskManager.showAllTasks().size(), "длина списка должна отличаться на 1");
-        assertNotEquals(savedAllSubtasksLength, taskManager.showAllSubtasks().size(), "длина списка должна отличаться на 1");
-        assertNotEquals(savedAllEpicsLength, taskManager.showAllEpics().size(), "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllTasksLength, taskManager.showAllTasks().size(),
+                "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllSubtasksLength, taskManager.showAllSubtasks().size(),
+                "длина списка должна отличаться на 1");
+        assertNotEquals(savedAllEpicsLength, taskManager.showAllEpics().size(),
+                "длина списка должна отличаться на 1");
 
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
@@ -196,7 +205,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void gettingOfPrioritizedTasksList() {
+    void gettingOfPrioritizedTasksList() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
@@ -240,7 +249,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void gettingOfPrioritizedTasksListIfStartTimeIsNull() {
+    void gettingOfPrioritizedTasksListIfStartTimeIsNull() throws IntersectionException {
         Task taskOne = new Task("Test addNewTaskOne",
                 "Test addNewTaskOne description");
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
@@ -281,12 +290,12 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkTimeCrossingOfNewTaskWithOldOnes() {
+    void checkTimeCrossingOfNewTaskWithOldOnes() throws IntersectionException {
 
         // s, e - startTime, endTime of new Task; S, E - startTime, EndTime of Task(s) in memory
 
-        Task taskOne = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(60, ChronoUnit.MINUTES), "Test addNewTaskOne",
-                "Test addNewTaskOne description");
+        Task taskOne = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(60, ChronoUnit.MINUTES),
+                "Test addNewTaskOne", "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
 
         Task taskTwo = new Task(Duration.ofMinutes(10), LocalDateTime.now(),
@@ -297,17 +306,20 @@ class InMemoryTaskManagerTest {
         Task taskThree = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(50, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskThree, 0), "case sSeE");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(taskThree, 0), "case sSeE");
 
         Task taskFour = new Task(Duration.ofMinutes(10), LocalDateTime.now().plus(70, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskFour, 0), "case SseE");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(taskFour, 0), "case SseE");
 
         Task taskFive = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(80, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskFive, 0), "caseSsEe");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(taskFive, 0), "caseSsEe");
 
         Task taskSix = new Task(Duration.ofMinutes(60), LocalDateTime.now().plus(300, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
@@ -317,6 +329,7 @@ class InMemoryTaskManagerTest {
         Task taskSeven = new Task(Duration.ofMinutes(120), LocalDateTime.now().plus(50, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
-        assertTrue(taskManager.taskStartEndTimeValidator(taskSeven, 0), "case sSEe");
+        assertThrows(IntersectionException.class, () -> taskManager
+                .taskStartEndTimeValidator(taskSeven, 0), "case sSEe");
     }
 }

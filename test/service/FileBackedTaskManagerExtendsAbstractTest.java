@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.ManagerReadException;
 import model.ManagerSaveException;
 import org.junit.jupiter.api.AfterEach;
@@ -19,7 +20,7 @@ public class FileBackedTaskManagerExtendsAbstractTest extends AbstractTaskManage
 
     @BeforeEach
     @Override
-    void setUp() throws IOException {
+    void setUp() throws IOException, IntersectionException {
         super.setUp();
     }
 
@@ -35,7 +36,7 @@ public class FileBackedTaskManagerExtendsAbstractTest extends AbstractTaskManage
     }
 
     @Test
-    void checkDifferentTypesOfTasksUpdate() {
+    void checkDifferentTypesOfTasksUpdate() throws IntersectionException {
         super.checkDifferentTypesOfTasksUpdate();
     }
 
@@ -50,7 +51,7 @@ public class FileBackedTaskManagerExtendsAbstractTest extends AbstractTaskManage
     }
 
     @Test
-    void checkTimeCrossingOfNewTaskWithOldOnes() {
+    void checkTimeCrossingOfNewTaskWithOldOnes() throws IntersectionException {
         super.checkTimeCrossingOfNewTaskWithOldOnes();
     }
 

@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.*;
 
 import java.io.File;
@@ -153,7 +154,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws IntersectionException {
         super.createTask(task);
         save();
     }
@@ -165,7 +166,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void createSubtask(int epicUin, Subtask subtask) {
+    public void createSubtask(int epicUin, Subtask subtask) throws IntersectionException {
         super.createSubtask(epicUin, subtask);
         save();
     }
@@ -186,7 +187,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void updateTask(int uin, Task newTask) {
+    public void updateTask(int uin, Task newTask) throws IntersectionException {
         super.updateTask(uin, newTask);
         save();
     }
@@ -198,7 +199,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
+    public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) throws IntersectionException {
         super.updateSubtask(subtaskUin, newSubtask, status);
         save();
     }

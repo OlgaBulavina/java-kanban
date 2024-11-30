@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -12,11 +13,11 @@ public interface TaskManager {
 
     int setUin(Task task);
 
-    void createTask(Task task);
+    void createTask(Task task) throws IntersectionException;
 
     void createEpic(Epic epic);
 
-    void createSubtask(int epicUin, Subtask subtask);
+    void createSubtask(int epicUin, Subtask subtask) throws IntersectionException;
 
     Task getTask(int uin);
 
@@ -24,11 +25,11 @@ public interface TaskManager {
 
     Subtask getSubtask(int uin);
 
-    void updateTask(int uin, Task newTask);
+    void updateTask(int uin, Task newTask) throws IntersectionException;
 
     void updateEpic(int uin, Epic newEpic);
 
-    void updateSubtask(int subtaskUin, Subtask newSubtask, Status status);
+    void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) throws IntersectionException;
 
     void deleteTask(int uin);
 
@@ -68,5 +69,5 @@ public interface TaskManager {
 
     Set<Task> getPrioritizedTasks();
 
-    boolean taskStartEndTimeValidator(Task task, int oldTaskUin);
+    boolean taskStartEndTimeValidator(Task task, int oldTaskUin) throws IntersectionException;
 }
