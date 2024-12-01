@@ -45,6 +45,14 @@ class PrioritizedHandlerTest {
         taskServer.stop();
     }
 
+    private HttpRequest sendPostRequest(URI url, String json) {
+        return HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    }
+
+    private HttpRequest sendGetRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).GET().build();
+    }
+
     @Test
     public void testGetPrioritizedList() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Test addNew EpicOne", "Test addNew EpicOne description");
@@ -52,8 +60,7 @@ class PrioritizedHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -68,12 +75,10 @@ class PrioritizedHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
 
@@ -82,21 +87,19 @@ class PrioritizedHandlerTest {
         String taskOneJson = gson.toJson(taskOne);
 
         URI urlThree = URI.create("http://localhost:8080/tasks");
-        HttpRequest requestFour = HttpRequest.newBuilder().uri(urlThree)
-                .POST(HttpRequest.BodyPublishers.ofString(taskOneJson)).build();
+        HttpRequest requestFour = sendPostRequest(urlThree, taskOneJson);
         HttpResponse<String> responseFour = client.send(requestFour, HttpResponse.BodyHandlers.ofString());
 
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestFive = HttpRequest.newBuilder().uri(urlThree)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestFive = sendPostRequest(urlThree, taskTwoJson);
         HttpResponse<String> responseFive = client.send(requestFive, HttpResponse.BodyHandlers.ofString());
 
 
         URI urlPrioritized = URI.create("http://localhost:8080/prioritized");
-        HttpRequest requestForPrioritized = HttpRequest.newBuilder().uri(urlPrioritized).GET().build();
+        HttpRequest requestForPrioritized = sendGetRequest(urlPrioritized);
         HttpResponse<String> responsePrioritized = client
                 .send(requestForPrioritized, HttpResponse.BodyHandlers.ofString());
 

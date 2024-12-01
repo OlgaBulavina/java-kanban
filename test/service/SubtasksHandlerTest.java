@@ -42,6 +42,18 @@ class SubtasksHandlerTest {
         taskServer.stop();
     }
 
+    private HttpRequest sendPostRequest(URI url, String json) {
+        return HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    }
+
+    private HttpRequest sendGetRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).GET().build();
+    }
+
+    private HttpRequest sendDeleteRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).DELETE().build();
+    }
+
     @Test
     public void testAddAndGetSubtasks() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Test addNew EpicOne", "Test addNew EpicOne description");
@@ -49,8 +61,7 @@ class SubtasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -64,20 +75,18 @@ class SubtasksHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseTwo.statusCode());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseThree.statusCode());
 
         URI urlThree = URI.create("http://localhost:8080/epics/1/subtasks");
-        HttpRequest requestFour = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpRequest requestFour = sendGetRequest(url);
         HttpResponse<String> responseFour = client.send(requestFour, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseFour.statusCode());
@@ -89,12 +98,12 @@ class SubtasksHandlerTest {
 
 
         URI urlFour = URI.create("http://localhost:8080/subtasks/2");
-        HttpRequest requestFive = HttpRequest.newBuilder().uri(urlFour).GET().build();
+        HttpRequest requestFive = sendGetRequest(urlFour);
         HttpResponse<String> responseFive = client.send(requestFive, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseFive.statusCode());
 
         URI urlFive = URI.create("http://localhost:8080/subtasks/3");
-        HttpRequest requestSix = HttpRequest.newBuilder().uri(urlFive).GET().build();
+        HttpRequest requestSix = sendGetRequest(urlFive);
         HttpResponse<String> responseSix = client.send(requestSix, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseSix.statusCode());
 
@@ -111,8 +120,7 @@ class SubtasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -121,12 +129,11 @@ class SubtasksHandlerTest {
         String subtaskOneJson = gson.toJson(subtaskOne);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlThree = URI.create("http://localhost:8080/subtasks/2");
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlThree).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlThree);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -144,8 +151,7 @@ class SubtasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -154,12 +160,11 @@ class SubtasksHandlerTest {
         String subtaskOneJson = gson.toJson(subtaskOne);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlThree = URI.create("http://localhost:8080/subtasks/77");
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlThree).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlThree);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(500, responseThree.statusCode());
@@ -176,8 +181,7 @@ class SubtasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -191,12 +195,10 @@ class SubtasksHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(406, responseThree.statusCode());
@@ -214,8 +216,7 @@ class SubtasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -224,12 +225,11 @@ class SubtasksHandlerTest {
         String subtaskOneJson = gson.toJson(subtaskOne);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlThree = URI.create("http://localhost:8080/subtasks/");
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlThree).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlThree);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());

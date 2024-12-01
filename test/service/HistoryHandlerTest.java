@@ -44,6 +44,14 @@ class HistoryHandlerTest {
         taskServer.stop();
     }
 
+    private HttpRequest sendPostRequest(URI url, String json) {
+        return HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    }
+
+    private HttpRequest sendGetRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).GET().build();
+    }
+
     @Test
     public void testGetHistoryList() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Test addNew EpicOne", "Test addNew EpicOne description");
@@ -51,8 +59,7 @@ class HistoryHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -67,12 +74,10 @@ class HistoryHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
 
@@ -81,50 +86,46 @@ class HistoryHandlerTest {
         String taskOneJson = gson.toJson(taskOne);
 
         URI urlThree = URI.create("http://localhost:8080/tasks");
-        HttpRequest requestFour = HttpRequest.newBuilder().uri(urlThree)
-                .POST(HttpRequest.BodyPublishers.ofString(taskOneJson)).build();
+        HttpRequest requestFour = sendPostRequest(urlThree, taskOneJson);
         HttpResponse<String> responseFour = client.send(requestFour, HttpResponse.BodyHandlers.ofString());
 
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestFive = HttpRequest.newBuilder().uri(urlThree)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestFive = sendPostRequest(urlThree, taskTwoJson);
         HttpResponse<String> responseFive = client.send(requestFive, HttpResponse.BodyHandlers.ofString());
 
 
         URI urlSubtaskOne = URI.create("http://localhost:8080/subtasks/2");
-        HttpRequest requestGetSubtaskOne = HttpRequest.newBuilder().uri(urlSubtaskOne).GET().build();
+        HttpRequest requestGetSubtaskOne = sendGetRequest(urlSubtaskOne);
         HttpResponse<String> responseGetSubtaskOne = client
                 .send(requestGetSubtaskOne, HttpResponse.BodyHandlers.ofString());
         URI urlSubtaskTwo = URI.create("http://localhost:8080/subtasks/3");
-        HttpRequest requestGetSubtaskTwo = HttpRequest.newBuilder().uri(urlSubtaskTwo).GET().build();
+        HttpRequest requestGetSubtaskTwo = sendGetRequest(urlSubtaskTwo);
         HttpResponse<String> responseGetSubtaskTwo = client
                 .send(requestGetSubtaskOne, HttpResponse.BodyHandlers.ofString());
 
         URI urlEpicOne = URI.create("http://localhost:8080/epics/1");
-        HttpRequest requestGetEpic = HttpRequest.newBuilder().uri(urlEpicOne).GET().build();
+        HttpRequest requestGetEpic = sendGetRequest(urlEpicOne);
         HttpResponse<String> responseGetEpic = client.send(requestGetEpic, HttpResponse.BodyHandlers.ofString());
 
         URI urlTaskOne = URI.create("http://localhost:8080/tasks/4");
-        HttpRequest requestGetTaskOne = HttpRequest.newBuilder().uri(urlTaskOne).GET().build();
+        HttpRequest requestGetTaskOne = sendGetRequest(urlTaskOne);
         HttpResponse<String> responseGetTaskOne = client.send(requestGetTaskOne, HttpResponse.BodyHandlers.ofString());
         URI urlTaskTwo = URI.create("http://localhost:8080/tasks/5");
-        HttpRequest requestGetTaskTwo = HttpRequest.newBuilder().uri(urlTaskTwo).GET().build();
+        HttpRequest requestGetTaskTwo = sendGetRequest(urlTaskTwo);
         HttpResponse<String> responseGetTaskTwo = client.send(requestGetTaskTwo, HttpResponse.BodyHandlers.ofString());
 
 
         URI urlHistory = URI.create("http://localhost:8080/history");
-        HttpRequest requestHistory = HttpRequest.newBuilder().uri(urlHistory).GET().build();
+        HttpRequest requestHistory = sendGetRequest(urlHistory);
         HttpResponse<String> responseHistory = client.send(requestHistory, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseHistory.statusCode());
 
         Collection<Task> TasksHistory = taskManager.getTasksHistoryFromInMemoryHM();
 
-        System.out.println(TasksHistory);
-        System.out.println(responseHistory.body());
 
         assertNotNull(TasksHistory, "Задачи не возвращаются");
         assertEquals(5, TasksHistory.size(), "Некорректное количество вызванных задач");

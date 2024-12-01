@@ -144,29 +144,29 @@ class EpicsHandler extends BaseHttpHandler {
 
         switch (requestMethod) {
             case "POST":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.UPDATE_EPIC;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.POST_EPIC;
                 }
                 break;
             case "GET":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.GET_EPIC;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.GET_ALL_EPICS;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 4 &&
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 4, requestPath) &&
                         requestArray[3].trim().toUpperCase().equals("SUBTASKS")) {
                     finalEndpoint = Endpoint.GET_ALL_SUBTASKS_FOR_ONE_EPIC;
                 }
                 break;
             case "DELETE":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_EPIC;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 4 &&
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 4, requestPath) &&
                         requestArray[3].trim().toUpperCase().equals("SUBTASKS")) {
                     finalEndpoint = Endpoint.DELETE_ALL_SUBTASKS_FOR_ONE_EPIC;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_ALL_EPICS;
                 }
                 break;

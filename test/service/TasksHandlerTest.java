@@ -42,6 +42,18 @@ class TasksHandlerTest {
         taskServer.stop();
     }
 
+    private HttpRequest sendPostRequest(URI url, String json) {
+        return HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    }
+
+    private HttpRequest sendGetRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).GET().build();
+    }
+
+    private HttpRequest sendDeleteRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).DELETE().build();
+    }
+
     @Test
     public void testAddTask() throws IOException, InterruptedException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
@@ -50,8 +62,7 @@ class TasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
+        HttpRequest request = sendPostRequest(url, taskJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
@@ -72,8 +83,7 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskOneJson)).build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -82,8 +92,7 @@ class TasksHandlerTest {
         String taskTwoJson = gson.toJson(taskTwo);
         URI urlTwo = URI.create("http://localhost:8080/tasks/1");
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
 
@@ -105,13 +114,12 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
         URI urlTwo = URI.create("http://localhost:8080/tasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).GET().build();
+        HttpRequest requestTwo = sendGetRequest(urlTwo);
 
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
@@ -134,8 +142,7 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -143,11 +150,10 @@ class TasksHandlerTest {
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpRequest requestThree = sendGetRequest(url);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -167,8 +173,7 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -176,13 +181,12 @@ class TasksHandlerTest {
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlTwo = URI.create("http://localhost:8080/tasks/1");
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlTwo);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -202,8 +206,7 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
@@ -211,11 +214,10 @@ class TasksHandlerTest {
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(url).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(url);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -234,16 +236,14 @@ class TasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
+        HttpRequest request = sendPostRequest(url, taskJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now(),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = gson.toJson(taskTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
 
@@ -263,16 +263,14 @@ class TasksHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
+        HttpRequest request = sendPostRequest(url, taskJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now(),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
         String taskTwoJson = new String("qwerty");
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, taskTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
 
@@ -293,13 +291,12 @@ class TasksHandlerTest {
         HttpClient client = HttpClient.newHttpClient();
 
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, taskOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
         URI urlTwo = URI.create("http://localhost:8080/tasks/55");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).GET().build();
+        HttpRequest requestTwo = sendGetRequest(urlTwo);
 
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 

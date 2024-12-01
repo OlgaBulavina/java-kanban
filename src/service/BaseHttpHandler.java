@@ -77,4 +77,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
             }
         }
     }
+
+    protected boolean checkPathLengthAndFirstPathElementFilling(String referencePath,
+                                                                int splitPathLength, String requestPath) {
+        String[] requestArray = requestPath.split("/");
+        return requestArray[1].trim().toUpperCase().equals(referencePath) && requestArray.length == splitPathLength;
+    }
 }

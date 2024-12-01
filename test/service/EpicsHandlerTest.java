@@ -43,6 +43,18 @@ class EpicsHandlerTest {
         taskServer.stop();
     }
 
+    private HttpRequest sendPostRequest(URI url, String json) {
+        return HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    }
+
+    private HttpRequest sendGetRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).GET().build();
+    }
+
+    private HttpRequest sendDeleteRequest(URI url) {
+        return HttpRequest.newBuilder().uri(url).DELETE().build();
+    }
+
     @Test
     public void testAddEpic() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Test addNew EpicOne", "Test addNew EpicOne description");
@@ -50,8 +62,7 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, response.statusCode());
@@ -70,16 +81,14 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Epic epicTwo = new Epic("Test addNew EpicTwo", "Test addNew EpicTwo description");
         String epicTwoJson = gson.toJson(epicTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/epics/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(epicTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, epicTwoJson);
 
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
@@ -99,12 +108,11 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         URI urlTwo = URI.create("http://localhost:8080/epics/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).GET().build();
+        HttpRequest requestTwo = sendGetRequest(urlTwo);
 
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
@@ -124,19 +132,17 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Epic epicTwo = new Epic("Test addNew EpicTwo", "Test addNew EpicTwo description");
         String epicTwoJson = gson.toJson(epicTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers
-                .ofString(epicTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, epicTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpRequest requestThree = sendGetRequest(url);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -154,19 +160,17 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Epic epicTwo = new Epic("Test addNew EpicTwo", "Test addNew EpicTwo description");
         String epicTwoJson = gson.toJson(epicTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers
-                .ofString(epicTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, epicTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlTwo = URI.create("http://localhost:8080/epics/1");
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlTwo);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -185,18 +189,16 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Epic epicTwo = new Epic("Test addNew EpicTwo", "Test addNew EpicTwo description");
         String epicTwoJson = gson.toJson(epicTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers
-                .ofString(epicTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, epicTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(url).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(url);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseThree.statusCode());
@@ -214,8 +216,7 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -229,20 +230,18 @@ class EpicsHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseTwo.statusCode());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseThree.statusCode());
 
         URI urlThree = URI.create("http://localhost:8080/epics/1/subtasks");
-        HttpRequest requestFour = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpRequest requestFour = sendGetRequest(url);
         HttpResponse<String> responseFour = client.send(requestFour, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseFour.statusCode());
@@ -260,8 +259,7 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
@@ -275,20 +273,18 @@ class EpicsHandlerTest {
         String subtaskTwoJson = gson.toJson(subtaskTwo);
 
         URI urlTwo = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskOneJson)).build();
+        HttpRequest requestTwo = sendPostRequest(urlTwo, subtaskOneJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseTwo.statusCode());
 
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).POST(HttpRequest.BodyPublishers
-                .ofString(subtaskTwoJson)).build();
+        HttpRequest requestThree = sendPostRequest(urlTwo, subtaskTwoJson);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, responseThree.statusCode());
 
         URI urlThree = URI.create("http://localhost:8080/epics/1/subtasks");
-        HttpRequest requestFour = HttpRequest.newBuilder().uri(url).DELETE().build();
+        HttpRequest requestFour = sendDeleteRequest(url);
         HttpResponse<String> responseFour = client.send(requestFour, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, responseFour.statusCode());
@@ -306,19 +302,17 @@ class EpicsHandlerTest {
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicOneJson))
-                .build();
+        HttpRequest request = sendPostRequest(url, epicOneJson);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         Epic epicTwo = new Epic("Test addNew EpicTwo", "Test addNew EpicTwo description");
         String epicTwoJson = gson.toJson(epicTwo);
 
-        HttpRequest requestTwo = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers
-                .ofString(epicTwoJson)).build();
+        HttpRequest requestTwo = sendPostRequest(url, epicTwoJson);
         HttpResponse<String> responseTwo = client.send(requestTwo, HttpResponse.BodyHandlers.ofString());
 
         URI urlTwo = URI.create("http://localhost:8080/epics/66");
-        HttpRequest requestThree = HttpRequest.newBuilder().uri(urlTwo).DELETE().build();
+        HttpRequest requestThree = sendDeleteRequest(urlTwo);
         HttpResponse<String> responseThree = client.send(requestThree, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(500, responseThree.statusCode());

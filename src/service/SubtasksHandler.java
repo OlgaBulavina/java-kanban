@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import exception.ExceptionHandler;
 import exception.IntersectionException;
 import model.Endpoint;
+import model.Epic;
 import model.Subtask;
 
 import java.io.IOException;
@@ -32,6 +33,8 @@ class SubtasksHandler extends BaseHttpHandler {
 
             Endpoint endpoint = getEndpoint(request, exchange.getRequestMethod(), body);
             Subtask newSubtask = gson.fromJson(body, Subtask.class);
+            System.out.println(newSubtask);
+            System.out.println(body);
 
             switch (endpoint) {
                 case UPDATE_SUBTASK: {
@@ -40,7 +43,9 @@ class SubtasksHandler extends BaseHttpHandler {
 
                         int subtaskId = newSubtask.getUin();
 
-                        if (taskManager.getEpicStorage().containsKey(epicId) &&
+                        List<Epic> epicList = taskManager.showAllEpics();
+
+                        if (epicList.contains(taskManager.getEpic(epicId)) &&
                                 taskManager.getSubtask(subtaskId).getName() != null) {
                             taskManager.updateSubtask(subtaskId, newSubtask, newSubtask.getStatus());
                             sendOkNoDataToSendBack(exchange, "Subtask was successfully updated.");
@@ -56,7 +61,9 @@ class SubtasksHandler extends BaseHttpHandler {
                     try {
                         int epicId = Integer.parseInt(requestArray[2]);
 
-                        if (taskManager.getEpicStorage().containsKey(epicId)) {
+                        List<Epic> epicList = taskManager.showAllEpics();
+
+                        if (epicList.contains(taskManager.getEpic(epicId))) {
                             taskManager.createSubtask(epicId, newSubtask);
                             sendOkNoDataToSendBack(exchange, "Subtask was posted successfully.");
                         } else {
@@ -119,8 +126,7 @@ class SubtasksHandler extends BaseHttpHandler {
                 default:
                     sendNotFound(exchange, "Bad request.");
             }
-        } catch (
-                Exception someOtherException) {
+        } catch (Exception someOtherException) {
             exceptionHandler.handleException(exchange, someOtherException);
         }
     }
@@ -131,25 +137,24 @@ class SubtasksHandler extends BaseHttpHandler {
 
         switch (requestMethod) {
             case "POST":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     Subtask currentSubtask = gson.fromJson(body, Subtask.class);
                     if (taskManager.getSubtask(currentSubtask.getUin()).getName() != null) {
                         finalEndpoint = Endpoint.POST_SUBTASK;
-                    } else
-                        finalEndpoint = Endpoint.UPDATE_SUBTASK;
+                    } else finalEndpoint = Endpoint.UPDATE_SUBTASK;
                 }
                 break;
             case "GET":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.GET_SUBTASK;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.GET_ALL_SUBTASKS;
                 }
                 break;
             case "DELETE":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_SUBTASK;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_ALL_SUBTASKS;
                 }
                 break;

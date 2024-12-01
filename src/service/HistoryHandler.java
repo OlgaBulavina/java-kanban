@@ -35,7 +35,6 @@ class HistoryHandler extends BaseHttpHandler {
                     } else {
                         String json = gson.toJson(historyOfTasks);
                         sendText(exchange, json);
-                        System.out.println(endpoint);
                     }
                     break;
                 }
@@ -57,7 +56,7 @@ class HistoryHandler extends BaseHttpHandler {
 
         switch (requestMethod) {
             case "GET":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.GET_HISTORY;
                     break;
                 }

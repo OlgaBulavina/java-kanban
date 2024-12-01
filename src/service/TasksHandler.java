@@ -122,23 +122,23 @@ class TasksHandler extends BaseHttpHandler {
 
         switch (requestMethod) {
             case "POST":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.UPDATE_TASK;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.POST_TASK;
                 }
                 break;
             case "GET":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.GET_TASK;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.GET_ALL_TASKS;
                 }
                 break;
             case "DELETE":
-                if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 3) {
+                if (checkPathLengthAndFirstPathElementFilling(path, 3, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_TASK;
-                } else if (requestArray[1].trim().toUpperCase().equals(path) && requestArray.length == 2) {
+                } else if (checkPathLengthAndFirstPathElementFilling(path, 2, requestPath)) {
                     finalEndpoint = Endpoint.DELETE_ALL_TASKS;
                 }
                 break;
