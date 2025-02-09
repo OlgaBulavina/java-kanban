@@ -1,6 +1,7 @@
 package model;
 
 
+import exception.IntersectionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.InMemoryTaskManager;
@@ -22,7 +23,7 @@ class TaskTest {
     }
 
     @Test
-    void addNewTask() {
+    void addNewTask() throws IntersectionException {
         Task task = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(task);
         int taskId = task.getUin();
@@ -39,7 +40,7 @@ class TaskTest {
     }
 
     @Test
-    void add() {
+    void add() throws IntersectionException {
         Task task = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(task);
         taskManager.getTask(task.getUin());
@@ -49,7 +50,7 @@ class TaskTest {
     }
 
     @Test
-    void taskEqualsById() {
+    void taskEqualsById() throws IntersectionException {
         Task task = new Task("Test addNewTask", "Test addNewTask description");
         taskManager.createTask(task);
         int taskId = task.getUin();

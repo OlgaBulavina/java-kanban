@@ -1,6 +1,9 @@
 <component name="libraryTable">
   <library name="junit.jupiter" type="repository">
     <properties maven-id="org.junit.jupiter:junit-jupiter:5.7.0" />
+    <ANNOTATIONS>
+      <root url="file://$PROJECT_DIR$/../m1-t25-api" />
+    </ANNOTATIONS>
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/junit-jupiter-5.7.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/junit-jupiter-api-5.7.0.jar!/" />

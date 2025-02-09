@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -37,11 +38,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws IntersectionException {
         setUin(task);
         task.setStatus(Status.NEW);
-
-        if (!taskStartEndTimeValidator(task, 0)) {
+        boolean check = taskStartEndTimeValidator(task, 0);
+        if (!check) {
             taskStorage.put(getUin(task), task);
             prioritizeTasks(task, "add_new");
         }
@@ -57,7 +58,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void createSubtask(int epicUin, Subtask subtask) {
+    public void createSubtask(int epicUin, Subtask subtask) throws IntersectionException {
         setUin(subtask);
         subtask.setEpicUin(epicUin);
         if (subtask.getStatus() == null) {
@@ -66,14 +67,20 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask.getDuration() == null) {
             subtask.setDuration(Duration.ofMinutes(0L));
         }
-        if (!taskStartEndTimeValidator(subtask, 0)) {
-            Map<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
-            currentSubtaskList.put(getUin(subtask), subtask);
-            updateEpicDuration(epicUin);
-            countEpicStatus(epicUin);
-            setEpicStartTime(epicUin);
-            updateEpicEndTime(epicUin);
-            prioritizeTasks(subtask, "add_new");
+        try {
+            boolean check = taskStartEndTimeValidator(subtask, 0);
+            if (!check) {
+                Map<Integer, Subtask> currentSubtaskList = subtaskStorage.get(epicUin);
+                currentSubtaskList.put(getUin(subtask), subtask);
+                updateEpicDuration(epicUin);
+                countEpicStatus(epicUin);
+                setEpicStartTime(epicUin);
+                updateEpicEndTime(epicUin);
+                prioritizeTasks(subtask, "add_new");
+            }
+        } catch (IntersectionException ex) {
+            ex.printStackTrace();
+            throw new IntersectionException("Intersection of Subtasks occurred while creating.");
         }
     }
 
@@ -103,16 +110,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(int uin, Task newTask) {
+    public void updateTask(int uin, Task newTask) throws IntersectionException {
 
         newTask.setUin(uin);
         if (newTask.status == null) {
             newTask.setStatus(taskStorage.get(uin).getStatus());
         }
         taskStorage.remove(uin);
-        if (!taskStartEndTimeValidator(newTask, uin)) {
-            taskStorage.put(uin, newTask);
-            prioritizeTasks(newTask, "change");
+        try {
+            boolean check = taskStartEndTimeValidator(newTask, uin);
+            if (!check) {
+                taskStorage.put(uin, newTask);
+                prioritizeTasks(newTask, "change");
+            }
+        } catch (IntersectionException ex) {
+            ex.printStackTrace();
+            throw new IntersectionException("Intersection of Subtasks occurred while updating.");
         }
     }
 
@@ -125,37 +138,40 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) {
+    public void updateSubtask(int subtaskUin, Subtask newSubtask, Status status) throws IntersectionException {
         newSubtask.setStatus(status);
-
-        if (!taskStartEndTimeValidator(newSubtask, subtaskUin)) {
-            prioritizeTasks(getSubtask(subtaskUin), "change");
-            Optional<Subtask> subtaskOptionalToChange = subtaskStorage.values().stream()
-                    .flatMap(subtasks -> subtasks.values().stream()
-                            .filter(subtask -> subtask.getUin() == subtaskUin))
-                    .findAny();
-            if (subtaskOptionalToChange.isPresent()) {
-                Subtask subtaskToChange = subtaskOptionalToChange.get();
-                newSubtask.setUin(subtaskToChange.getUin());
-                newSubtask.setEpicUin(subtaskToChange.getThisEpicUin());
-                if (newSubtask.getStartTime() == null) {
-                    newSubtask.setStartTime(subtaskToChange.getStartTime());
-                }
-                if (newSubtask.getDuration() == null) {
-                    newSubtask.setDuration(subtaskToChange.getDuration());
-                }
-                if (subtaskStorage.values().stream()
-                        .peek(subtasks -> {
-                            subtasks.remove(subtaskUin, subtaskToChange);
-                            subtasks.put(subtaskUin, newSubtask);
-                        })
-                        .anyMatch(subtasks -> subtasks.containsValue(newSubtask))) {
-                    countEpicStatus(newSubtask.getThisEpicUin());
-                    updateEpicDuration(newSubtask.getThisEpicUin());
-                    setEpicStartTime(newSubtask.getThisEpicUin());
-                    updateEpicEndTime(newSubtask.getThisEpicUin());
+        try {
+            boolean check = taskStartEndTimeValidator(newSubtask, subtaskUin);
+            if (!check) {
+                prioritizeTasks(getSubtask(subtaskUin), "change");
+                Optional<Subtask> subtaskOptionalToChange = subtaskStorage.values().stream()
+                        .flatMap(subtasks -> subtasks.values().stream()
+                                .filter(subtask -> subtask.getUin() == subtaskUin))
+                        .findAny();
+                if (subtaskOptionalToChange.isPresent()) {
+                    Subtask subtaskToChange = subtaskOptionalToChange.get();
+                    newSubtask.setUin(subtaskToChange.getUin());
+                    newSubtask.setEpicUin(subtaskToChange.getThisEpicUin());
+                    if (newSubtask.getStartTime() == null) {
+                        newSubtask.setStartTime(subtaskToChange.getStartTime());
+                    }
+                    if (newSubtask.getDuration() == null) {
+                        newSubtask.setDuration(subtaskToChange.getDuration());
+                    }
+                    if (subtaskStorage.values().stream()
+                            .peek(subtasks -> {
+                                subtasks.remove(subtaskUin, subtaskToChange);
+                                subtasks.put(subtaskUin, newSubtask);
+                            })
+                            .anyMatch(subtasks -> subtasks.containsValue(newSubtask))) {
+                        countEpicStatus(newSubtask.getThisEpicUin());
+                        updateEpicDuration(newSubtask.getThisEpicUin());
+                        setEpicStartTime(newSubtask.getThisEpicUin());
+                        updateEpicEndTime(newSubtask.getThisEpicUin());
+                    }
                 }
             }
+        } catch (IntersectionException ignored) {
         }
     }
 
@@ -374,12 +390,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean taskStartEndTimeValidator(Task newTask, int oldTaskUin) {
+    public boolean taskStartEndTimeValidator(Task newTask, int oldTaskUin) throws IntersectionException {
+        boolean isIntersected;
         if (newTask.getStartTime() == null) return false;
         else {
             LocalDateTime newTaskStartTime = newTask.getStartTime();
             LocalDateTime newTaskEndTime = newTask.getEndTime();
-            return getPrioritizedTasks().stream()
+            isIntersected = getPrioritizedTasks().stream()
                     .filter(task -> task.getUin() != oldTaskUin)
                     .anyMatch(task ->
                             ((newTaskEndTime.isBefore(task.getEndTime()) || newTaskEndTime.equals(task.getEndTime())) &
@@ -389,7 +406,11 @@ public class InMemoryTaskManager implements TaskManager {
                                             newTaskStartTime.equals(task.getEndTime())) ||
                                     newTaskStartTime.isBefore(task.getStartTime())
                                             & newTaskEndTime.isAfter(task.getEndTime())));
+            if (isIntersected) {
+                throw new IntersectionException("The task intersects with the others.");
+            }
         }
+        return isIntersected;
     }
 
     @Override

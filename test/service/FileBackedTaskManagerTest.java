@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -24,27 +25,27 @@ public class FileBackedTaskManagerTest {
     FileBackedTaskManager fileBackedTaskManager;
 
     @Test
-    void checkLoadingInFile() throws IOException {
+    void checkLoadingInFile() throws IOException, IntersectionException {
         File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(110, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(110, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(160, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(125, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(125, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         fileBackedTaskManager.createTask(taskOne);
@@ -163,27 +164,27 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void checkLoadingOfChangesInFileAfterTasksDelete() throws IOException {
+    void checkLoadingOfChangesInFileAfterTasksDelete() throws IOException, IntersectionException {
         File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(30), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(110, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(110, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
         Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
                 LocalDateTime.now().plus(160, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(125, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(125, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         fileBackedTaskManager.createTask(taskOne);
@@ -231,27 +232,27 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void checkLoadingOfChangesInFileAfterTasksUpdate() throws IOException {
+    void checkLoadingOfChangesInFileAfterTasksUpdate() throws IOException, IntersectionException {
         File file = createTempFile("backup", ".csv");
         fileBackedTaskManager = new FileBackedTaskManager(new InMemoryHistoryManager());
         fileBackedTaskManager.storageFile = file;
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
-        Task taskTwo = new Task(Duration.ofMinutes(20),LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
+        Task taskTwo = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(20, ChronoUnit.MINUTES),
                 "Test addNewTaskTwo", "Test addNewTaskTwo description");
-        Task taskThree = new Task(Duration.ofMinutes(30),LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
+        Task taskThree = new Task(Duration.ofMinutes(20), LocalDateTime.now().plus(45, ChronoUnit.MINUTES),
                 "Test addNewTaskThree", "Test addNewTaskThree description");
 
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Epic epicTwo = new Epic("Test addNewEpicTwo", "Test addNewEpicTwo description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
-                LocalDateTime.now().plus(110, ChronoUnit.MINUTES),"Test addNewSubtaskOne",
+                LocalDateTime.now().plus(110, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
                 "Test addNewSubtaskOne description");
-        Subtask subtaskTwo = new Subtask(Duration.ofMinutes(30),
+        Subtask subtaskTwo = new Subtask(Duration.ofMinutes(5),
                 LocalDateTime.now().plus(70, ChronoUnit.MINUTES), "Test addNewSubtaskTwo",
                 "Test addNewSubtaskTwo description");
         Subtask subtaskThree = new Subtask(Duration.ofMinutes(25),
-                LocalDateTime.now().plus(125, ChronoUnit.MINUTES),"Test addNewSubtaskThree",
+                LocalDateTime.now().plus(125, ChronoUnit.MINUTES), "Test addNewSubtaskThree",
                 "Test addNewSubtaskThree description");
 
         fileBackedTaskManager.createTask(taskOne);

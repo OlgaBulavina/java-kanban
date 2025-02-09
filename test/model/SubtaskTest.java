@@ -1,5 +1,6 @@
 package model;
 
+import exception.IntersectionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.InMemoryTaskManager;
@@ -23,7 +24,7 @@ class SubtaskTest {
     }
 
     @Test
-    void addNewSubtask() {
+    void addNewSubtask() throws IntersectionException {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
@@ -43,11 +44,11 @@ class SubtaskTest {
 
         assertNotNull(subtasks, "Задачи не возвращаются.");
         assertEquals(1, subtasks.size(), "Неверное количество задач.");
-        assertEquals(subtask, subtasks.getFirst(), "Задачи не совпадают.");
+        assertEquals(subtask, subtasks.get(0), "Задачи не совпадают.");
     }
 
     @Test
-    void add() {
+    void add() throws IntersectionException {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
@@ -64,7 +65,7 @@ class SubtaskTest {
     }
 
     @Test
-    void subtaskEqualsById() {
+    void subtaskEqualsById() throws IntersectionException {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int epicId = epic.getUin();
@@ -81,7 +82,7 @@ class SubtaskTest {
     }
 
     @Test
-    void checkEpicStartDTAndEndDTAndDurationIfNoEntryData() {
+    void checkEpicStartDTAndEndDTAndDurationIfNoEntryData() throws IntersectionException {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int epicId = epic.getUin();

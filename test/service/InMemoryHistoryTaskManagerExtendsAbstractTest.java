@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -24,7 +25,7 @@ public class InMemoryHistoryTaskManagerExtendsAbstractTest extends AbstractTaskM
 
     @BeforeEach
     @Override
-    void setUp() throws IOException {
+    void setUp() throws IOException, IntersectionException {
         super.setUp();
     }
 
@@ -40,7 +41,7 @@ public class InMemoryHistoryTaskManagerExtendsAbstractTest extends AbstractTaskM
     }
 
     @Test
-    void checkDifferentTypesOfTasksUpdate() {
+    void checkDifferentTypesOfTasksUpdate() throws IntersectionException {
         super.checkDifferentTypesOfTasksUpdate();
     }
 
@@ -55,7 +56,7 @@ public class InMemoryHistoryTaskManagerExtendsAbstractTest extends AbstractTaskM
     }
 
     @Test
-    void checkTimeCrossingOfNewTaskWithOldOnes() {
+    void checkTimeCrossingOfNewTaskWithOldOnes() throws IntersectionException {
         super.checkTimeCrossingOfNewTaskWithOldOnes();
     }
 

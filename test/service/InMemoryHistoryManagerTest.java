@@ -1,5 +1,6 @@
 package service;
 
+import exception.IntersectionException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -22,7 +23,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void getHistoryGivesTasksInFifoOrder() {
+    void getHistoryGivesTasksInFifoOrder() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
@@ -57,7 +58,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void historyDoNotSaveDuplicatesOfEachKindOfTask() {
+    void historyDoNotSaveDuplicatesOfEachKindOfTask() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         taskManager.createTask(taskOne);
@@ -88,7 +89,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void ifDeleteAnyKindOfTaskItIsNoLongerInHistory() {
+    void ifDeleteAnyKindOfTaskItIsNoLongerInHistory() throws IntersectionException {
         Task taskOne = new Task(Duration.ofMinutes(10), LocalDateTime.now(), "Test addNewTaskOne",
                 "Test addNewTaskOne description");
         taskManager.createTask(taskOne);

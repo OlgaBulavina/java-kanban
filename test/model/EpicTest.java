@@ -1,5 +1,6 @@
 package model;
 
+import exception.IntersectionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.InMemoryTaskManager;
@@ -70,7 +71,7 @@ class EpicTest {
     }
 
     @Test
-    void checkEpicStartDTAndEndDTAndDuration() {
+    void checkEpicStartDTAndEndDTAndDuration() throws IntersectionException {
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
                 LocalDateTime.now().plus(15, ChronoUnit.MINUTES), "Test addNewSubtaskOne",
@@ -114,7 +115,7 @@ class EpicTest {
     }
 
     @Test
-    void checkEpicStatusChanges() {
+    void checkEpicStatusChanges() throws IntersectionException {
         Epic epicOne = new Epic("Test addNewEpicOne", "Test addNewEpicOne description");
 
         Subtask subtaskOne = new Subtask(Duration.ofMinutes(10),
